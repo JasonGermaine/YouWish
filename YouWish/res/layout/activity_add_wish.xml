@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <LinearLayout
+        android:id="@+id/add_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8.0dip" />
+
+        <TextView
+            android:id="@+id/add_status_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16.0dip"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/add_progress_signing_in"
+            android:textAppearance="?android:textAppearanceMedium" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/add_form"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@layout/login_background"
+        android:fillViewport="true" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@layout/login_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_horizontal" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10.0dip" >
+
+                    <ImageView
+                        android:id="@+id/wish_img"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:adjustViewBounds="true"
+                        android:contentDescription="@string/wish_img_desc"
+                        android:maxHeight="250.0dip"
+                        android:maxWidth="250.0dip"
+                        android:minHeight="250.0dip"
+                        android:minWidth="250.0dip"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/image_preview" />
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15.0sp"
+                        android:layout_marginTop="15.0sp"
+                        android:gravity="center_horizontal" >
+
+                        <ImageButton
+                            android:id="@+id/image_gallery"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="15.0sp"
+                            android:src="@drawable/ic_gallery" />
+
+                        <TextView
+                            android:id="@+id/gallery_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/image_gallery"
+                            android:layout_marginRight="50.0sp"
+                            android:paddingLeft="15.0sp"
+                            android:text="@string/gallery"
+                            android:textColor="#ff000000" />
+
+                        <ImageButton
+                            android:id="@+id/image_camera"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toRightOf="@id/image_gallery"
+                            android:src="@drawable/ic_camera" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/image_camera"
+                            android:layout_toRightOf="@id/gallery_text"
+                            android:text="@string/camera"
+                            android:textColor="#ff000000" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15.0sp"
+                        android:gravity="center_horizontal" >
+
+                        <RadioGroup
+                            android:id="@+id/radio_wish_type"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" >
+
+                            <RadioButton
+                                android:id="@+id/radio_bucket"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="20.0sp"
+                                android:onClick="onWishTypeClicked"
+                                android:text="@string/wish_bucket"
+                                android:textColor="#ff000000" />
+
+                            <RadioButton
+                                android:id="@+id/radio_product"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:onClick="onWishTypeClicked"
+                                android:text="@string/wish_product"
+                                android:textColor="#ff000000" />
+                        </RadioGroup>
+                    </RelativeLayout>
+
+                    <TextView
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_title" />
+
+                    <EditText
+                        android:id="@+id/add_title"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:inputType="textEmailAddress"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15.0sp"
+                        android:gravity="center_horizontal" >
+
+                        <Button
+                            android:id="@+id/add_extra_content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:alpha="0.3"
+                            android:background="@drawable/round_button"
+                            android:onClick="addExtraDetail"
+                            android:padding="5.0dip"
+                            android:text="@string/add_extra" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/extra_content"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10.0dip"
+                    android:visibility="gone" >
+
+                    <TextView
+                        android:id="@+id/title_desc"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_desc" />
+
+                    <EditText
+                        android:id="@+id/add_desc"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:gravity="top|left|center"
+                        android:inputType="textMultiLine"
+                        android:lines="4"
+                        android:maxLines="10"
+                        android:minLines="2"
+                        android:scrollbars="vertical" />
+
+                    <RelativeLayout
+                        android:id="@+id/extra_loc_url"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15.0sp"
+                        android:gravity="center_horizontal" >
+
+                        <RadioGroup
+                            android:id="@+id/radio_loc_url"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" >
+
+                            <RadioButton
+                                android:id="@+id/radio_location"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="20.0sp"
+                                android:checked="true"
+                                android:onClick="onLocURLClicked"
+                                android:text="@string/wish_location"
+                                android:textColor="#ff000000" />
+
+                            <RadioButton
+                                android:id="@+id/radio_url"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:onClick="onLocURLClicked"
+                                android:text="@string/wish_url"
+                                android:textColor="#ff000000" />
+                        </RadioGroup>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/title_url"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_url" />
+
+                    <EditText
+                        android:id="@+id/add_url"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:inputType="textUri"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/title_loc"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_location" />
+
+                    <LinearLayout
+                        android:id="@+id/wish_loc"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5.0dip"
+                        android:orientation="horizontal" >
+
+                        <EditText
+                            android:id="@+id/add_loc"
+                            android:layout_width="0.0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20.0dip"
+                            android:layout_weight="0.7"
+                            android:gravity="top|left|center"
+                            android:inputType="textMultiLine"
+                            android:lines="4"
+                            android:maxLines="10"
+                            android:minLines="2"
+                            android:scrollbars="vertical" />
+
+                        <ImageButton
+                            android:id="@+id/pick_loc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="getAddress"
+                            android:src="@drawable/ic_location_place" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/title_priority"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_priority" />
+
+                    <RelativeLayout
+                        android:id="@+id/extra_priority"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5.0sp"
+                        android:layout_marginTop="15.0sp"
+                        android:gravity="center_horizontal" >
+
+                        <RatingBar
+                            android:id="@+id/rating_priority"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20.0dip"
+                            android:numStars="5"
+                            android:scaleX="0.7"
+                            android:scaleY="0.7"
+                            android:stepSize="1.0" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/title_price"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_price" />
+
+                    <EditText
+                        android:id="@+id/add_price"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:inputType="phone"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/title_ean"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_ean" />
+
+                    <EditText
+                        android:id="@+id/add_ean"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20.0dip"
+                        android:layout_marginTop="5.0dip"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/title_achieve"
+                        style="@style/LoginRegisterText"
+                        android:text="@string/wish_achieve" />
+
+                    <LinearLayout
+                        android:id="@+id/wish_achieve"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5.0dip"
+                        android:orientation="horizontal" >
+
+                        <EditText
+                            android:id="@+id/add_achieve"
+                            android:layout_width="0.0dip"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.7"
+                            android:clickable="false"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:inputType="none" />
+
+                        <ImageButton
+                            android:id="@+id/pick_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/dob_desc"
+                            android:onClick="showDatePickerDialog"
+                            android:src="@drawable/calendar" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+</merge>

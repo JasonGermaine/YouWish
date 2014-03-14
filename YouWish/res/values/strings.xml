@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">YouWish</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Strings related to login -->
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_email"><b>Email</b></string>
+    <string name="prompt_password"><b>Password</b></string>
+    <string name="action_login"><b>Login</b></string>
+    <string name="newMember">New to YouWish?</string>
+    <string name="action_register_here"><u>Register Here</u></string>
+    <string name="logo_desc">Logo</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_forgot_password">Recover lost password</string>
+    <string name="login_progress_signing_in">Signing in&#8230;</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_format">This field contains illegal characters</string>
+
+    <!-- Strings related to register -->
+    <string name="fname"><b>First Name</b></string>
+    <string name="lname"><b>Last Name</b></string>
+    <string name="dob"><b>Date Of Birth</b></string>
+    <string name="password_format">Password length must be at least 6 characters.</string>
+    <string name="action_register"><b>Register</b></string>
+    <string name="already_member">Already have an account?</string>
+    <string name="action_goto_login"><u>Login Here</u></string>
+    <string name="dob_desc">Icon for date of birth</string>
+
+    <!-- Strings related to main navigation -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_addwish">Add Wish</string>
+
+    <string-array name="list_array">
+        <item>My Profile</item>
+        <item>Wish Stream</item>
+        <item>Search Users</item>
+    </string-array>
+
+    <string name="action_logout">Logout</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    
+    
+    <string name="title_activity_add_wish">Add Wish</string>
+    <string name="add_progress_signing_in">Adding Wish…</string>
+    <string name="wish_title"><b>Title</b></string>
+    <string name="wish_img_desc"><b>Wish Image</b></string>
+    <string name="wish_desc"><b>Description</b></string>
+    <string name="wish_priority"><b>Priority</b></string>
+    <string name="wish_location"><b>Location</b></string>
+    <string name="wish_url"><b>URL</b></string>
+    <string name="wish_bucket"><b>Bucket List</b></string>
+    <string name="wish_product"><b>Product</b></string>
+    <string name="wish_price"><b>Price</b></string>
+    <string name="wish_ean"><b>EAN</b></string>
+    <string name="add_extra">Add more detail</string>
+    <string name="wish_achieve"><b>Achieve By</b></string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    
+    
+
+</resources>
