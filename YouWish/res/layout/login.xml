@@ -2,8 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".LoginActivity" >
 
-    
-    
     <!-- Login progress -->
 
     <LinearLayout
@@ -31,111 +29,120 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
-<ScrollView
-  android:id="@+id/login_form"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
-  android:fillViewport="true"
-  android:background="@layout/login_background">
-        
-	  
-    
-    
-  <RelativeLayout
+    <ScrollView
+        android:id="@+id/login_form"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         android:background="@layout/login_background"
-        android:focusable="true"
-		android:focusableInTouchMode="true">
-        
- 
-        <!--  Header  Starts-->
-        <LinearLayout 
-            android:id="@+id/header"
+        android:fillViewport="true" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@layout/login_background"
+            android:focusable="true"
+            android:focusableInTouchMode="true" >
+
+            <!-- Header  Starts -->
+
+            <LinearLayout
+                android:id="@+id/header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dip"
-                android:paddingBottom="5dip">
-                
-                <!-- Logo Start-->
-            <ImageView
-                android:layout_width="fill_parent"
-                android:contentDescription="@string/logo_desc"               
-                android:layout_height="fill_parent"
-                android:layout_marginTop="15dip"
-                android:layout_marginLeft="10dip"
-                android:src="@drawable/logo" />
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip" >
+
+                <!-- Logo Start -->
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginLeft="10dip"
+                    android:layout_marginTop="15dip"
+                    android:contentDescription="@string/logo_desc"
+                    android:src="@drawable/logo" />
 
                 <!-- Logo Ends -->
-        </LinearLayout>
-        <!--  Header Ends -->
- 
-        <!-- Login Form -->
-        <LinearLayout
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:padding="30dip"
-          android:layout_below="@id/header">
-            
-          <!--  Email Label -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/prompt_email"/>
-          <EditText
-                android:id="@+id/email_field"
-                android:layout_width="fill_parent"
+            </LinearLayout>
+            <!-- Header Ends -->
+
+
+            <!-- Login Form -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:layout_marginBottom="20dip"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:singleLine="true"/>
-          
-          <!--  Password Label -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/prompt_password"/>
-          <EditText
-                android:id="@+id/password_field"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:imeActionId="@+id/login"
-                android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:singleLine="true" />
-          
-          <!-- Login button -->
-          <Button android:id="@+id/sign_in_button"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:text="@string/action_login"/>
-          
-          <!-- Link to Registration Screen -->
-          <TextView android:id="@+id/new_to_youwish"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dip"
-                android:text="@string/newMember"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:textColor="#000"/>
-          <TextView android:id="@+id/link_to_register"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="40dip"
-                android:text="@string/action_register_here"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:textColor="#000"/>
-          
- 
-        </LinearLayout>
-        <!-- Login Form Ends -->
-  </RelativeLayout>
-</ScrollView>
+                android:layout_below="@id/header"
+                android:orientation="vertical"
+                android:padding="30dip" >
+
+                <!-- Email Label -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/prompt_email" />
+
+                <EditText
+                    android:id="@+id/email_field"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dip"
+                    android:layout_marginTop="5dip"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <!-- Password Label -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/prompt_password" />
+
+                <EditText
+                    android:id="@+id/password_field"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dip"
+                    android:imeActionId="@+id/login"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <!-- Login button -->
+
+                <Button
+                    android:id="@+id/sign_in_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dip"
+                    android:text="@string/action_login" />
+
+                <!-- Link to Registration Screen -->
+
+                <TextView
+                    android:id="@+id/new_to_youwish"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dip"
+                    android:gravity="center"
+                    android:text="@string/newMember"
+                    android:textColor="#000"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/link_to_register"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="40dip"
+                    android:gravity="center"
+                    android:text="@string/action_register_here"
+                    android:textColor="#000"
+                    android:textSize="20sp" />
+            </LinearLayout>
+            <!-- Login Form Ends -->
+        </RelativeLayout>
+    </ScrollView>
+
 </merge>

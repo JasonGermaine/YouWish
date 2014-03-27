@@ -12,16 +12,34 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
+-->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textAppearance="?android:attr/textAppearanceListItemSmall"
-    android:gravity="center_vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:textColor="#fff"
-    android:background="?android:attr/activatedBackgroundIndicator"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
+    android:layout_gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop = "10sp"
+    android:layout_marginTop="25sp"
+    android:background="?android:attr/activatedBackgroundIndicator"  >
+
+    <ImageView
+        android:id="@+id/image1"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight=".3"
+        />
+
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".70"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"
+        android:paddingLeft="5dp"
+        android:paddingRight="16dp"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:textColor="#fff" 
+        android:layout_marginTop ="5sp"/>
+
+</LinearLayout>

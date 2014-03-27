@@ -1,5 +1,8 @@
 package com.example.youwish;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 public class User
 {
@@ -12,8 +15,37 @@ public class User
 	
 	@com.google.gson.annotations.SerializedName("password")
 	private String mPassword;
-	public String getPassword() { return mPassword; }
-	public void setPassword(String password) { this.mPassword = password; }
+	public String getPassword()
+	{ 
+		
+		return mPassword; 
+	}
+	
+	public void setPassword(String password)
+	{ 
+		MessageDigest md;
+		try
+		{
+			md = MessageDigest.getInstance("SHA-256");
+	        md.update(password.getBytes());
+	        
+	        byte byteData[] = md.digest();
+	 
+	        //convert the byte to hex format method 1
+	        StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < byteData.length; i++) {
+	         sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	 
+	        this.mPassword = sb.toString();
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 	
 	@com.google.gson.annotations.SerializedName("fname")
 	private String mFName;
@@ -34,7 +66,7 @@ public class User
 	public User(String email, String password, String fName, String lName, String DOB)
 	{
 		this.mEmail = email;
-		this.mPassword = password;
+		setPassword(password);
 		this.mFName = fName;
 		this.mLName = lName;
 		this.mDOB = DOB;
@@ -49,7 +81,7 @@ public class User
 	public User (String email, String password) 
 	{
 		this.mEmail = email;
-		this.mPassword = password;
+		setPassword(password);
 	}
 	
 

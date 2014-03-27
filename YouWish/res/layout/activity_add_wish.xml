@@ -30,13 +30,12 @@
         android:id="@+id/add_form"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@layout/login_background"
+        android:background="#EDEBF2"
         android:fillViewport="true" >
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@layout/login_background"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:gravity="center_horizontal" >
@@ -72,37 +71,31 @@
                         android:layout_marginTop="15.0sp"
                         android:gravity="center_horizontal" >
 
-                        <ImageButton
+                        <Button
                             android:id="@+id/image_gallery"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="15.0sp"
-                            android:src="@drawable/ic_gallery" />
-
-                        <TextView
-                            android:id="@+id/gallery_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/image_gallery"
-                            android:layout_marginRight="50.0sp"
-                            android:paddingLeft="15.0sp"
+                            android:layout_marginRight="50sp"
+                            android:layout_marginLeft="20sp"
+                            android:background="@android:color/transparent"
+                            android:drawablePadding="5sp"
+                            android:drawableTop="@drawable/ic_gallery"
                             android:text="@string/gallery"
-                            android:textColor="#ff000000" />
+                            android:textColor="#000" >
+                        </Button>
 
-                        <ImageButton
+                        <Button
                             android:id="@+id/image_camera"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginRight="15.0sp"
                             android:layout_toRightOf="@id/image_gallery"
-                            android:src="@drawable/ic_camera" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/image_camera"
-                            android:layout_toRightOf="@id/gallery_text"
+                            android:background="@android:color/transparent"
+                            android:drawablePadding="5sp"
+                            android:drawableTop="@drawable/ic_camera"
                             android:text="@string/camera"
-                            android:textColor="#ff000000" />
+                            android:textColor="#000" >
+                        </Button>
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -273,6 +266,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:onClick="getAddress"
+                            android:background="@android:color/transparent"
                             android:src="@drawable/ic_location_place" />
                     </LinearLayout>
 

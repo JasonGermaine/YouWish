@@ -18,7 +18,7 @@ public class SplashActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
     	 
     	// Session class instance
-        session = new SessionManager(getApplicationContext());
+        session = SessionManager.getSessionManager(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
  

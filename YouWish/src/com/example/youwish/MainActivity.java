@@ -1,17 +1,24 @@
 package com.example.youwish;
 
+import java.net.MalformedURLException;
 import java.util.Locale;
 
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,12 +27,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class MainActivity extends Activity
+public class MainActivity extends FragmentActivity
 {
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
+	
+	public static Context CONTEXT;
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
@@ -37,9 +46,10 @@ public class MainActivity extends Activity
 	@Override
 	protected void onCreate( Bundle savedInstanceState )
 	{
+		CONTEXT = this;
 
 		// Session class instance
-		session = new SessionManager(getApplicationContext());
+		session = SessionManager.getSessionManager(getApplicationContext());
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -54,14 +64,18 @@ public class MainActivity extends Activity
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
-		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mListTitles));
+
+		mDrawerList.setAdapter(new NavAdapter(this, mListTitles));
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// enable ActionBar app icon to behave as action to toggle nav drawer
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
+		getActionBar().setDisplayShowCustomEnabled(true);
+		getActionBar().setDisplayShowTitleEnabled(false);
 
+		
+		
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the sliding drawer and the action bar app icon
 		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
@@ -73,7 +87,6 @@ public class MainActivity extends Activity
 		{
 			public void onDrawerClosed( View view )
 			{
-				getActionBar().setTitle(mTitle);
 				invalidateOptionsMenu(); // creates call to
 											// onPrepareOptionsMenu()
 			}
@@ -110,6 +123,7 @@ public class MainActivity extends Activity
 		// view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		menu.findItem(R.id.action_addwish).setVisible(!drawerOpen);
+		getActionBar().setDisplayShowCustomEnabled(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -162,28 +176,72 @@ public class MainActivity extends Activity
 
 	private void selectItem( int position )
 	{
-		// update the main content by replacing fragments
-		Fragment fragment = new PlanetFragment();
-		Bundle args = new Bundle();
-		args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-		fragment.setArguments(args);
+		LayoutInflater inflater = (LayoutInflater) this
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		if (position == 0)
+		{
+			// update the main content by replacing fragments
+			// Fragment fragment = new PlanetFragment();
+			// Bundle args = new Bundle();
+			// fragment.setArguments(args);
+			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+			// fragment.setArguments(args);
 
-		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-				.replace(R.id.content_frame, fragment).commit();
+			// FragmentManager fragmentManager = getSupportFragmentManager();
+			// fragmentManager.beginTransaction()
+			// .replace(R.id.content_frame, fragment).commit();
+			// Switching to Register screen
+			View v = inflater.inflate(R.layout.profile_title_bar, null);
+			//assign the view to the actionbar
+			getActionBar().setCustomView(v);
+			
+			//Intent j = new Intent(getApplicationContext(),
+				//	ProfileActivity.class);
+			//startActivity(j);
 
-		// update selected item and title, then close the drawer
+		}
+		else if (position == 1)
+		{
+			View v = inflater.inflate(R.layout.stream_title_bar, null);
+			//assign the view to the actionbar
+			getActionBar().setCustomView(v);
+			
+			// update the main content by replacing fragments
+			Fragment fragment = new WishStreamFragment();
+			Bundle args = new Bundle();
+			fragment.setArguments(args);
+			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+			// fragment.setArguments(args);
+
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+					.replace(R.id.content_frame, fragment).commit();
+		}
+		else
+		{
+
+			View v = inflater.inflate(R.layout.search_title_bar, null);
+			//assign the view to the actionbar
+			getActionBar().setCustomView(v);
+			
+			// update the main content by replacing fragments
+			Fragment fragment = new SearchUserFragment();
+			Bundle args = new Bundle();
+			fragment.setArguments(args);
+			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+			// fragment.setArguments(args);
+
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+					.replace(R.id.content_frame, fragment).commit();
+
+			// update selected item and title, then close the drawer
+		}
 		mDrawerList.setItemChecked(position, true);
 		setTitle(mListTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 
-	@Override
-	public void setTitle( CharSequence title )
-	{
-		mTitle = title;
-		getActionBar().setTitle(mTitle);
-	}
 
 	/**
 	 * When using the ActionBarDrawerToggle, you must call it during

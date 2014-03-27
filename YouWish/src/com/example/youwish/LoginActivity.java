@@ -3,6 +3,8 @@ package com.example.youwish;
 import com.microsoft.windowsazure.mobileservices.*;
 
 import java.net.MalformedURLException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,9 +13,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -21,17 +25,17 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Activity which displays a login screen to the user
  */
-public class LoginActivity extends Activity
+public class LoginActivity extends FragmentActivity
 {
 
 	// Create Client
 	private MobileServiceClient mClient;
 	private MobileServiceTable<User> mUserTable;
-
 
 	public static Activity login_activity;
 
@@ -46,22 +50,25 @@ public class LoginActivity extends Activity
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
 	private TextView mRegisterScreen;
-	
+
 	// Session Manager Class
 	private SessionManager session;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState)
+	protected void onCreate( Bundle savedInstanceState )
 	{
-        // Session Manager
-        session = new SessionManager(getApplicationContext());   
-		
+
+		// Session class instance
+		session = SessionManager.getSessionManager(getApplicationContext());
+
 		// Connect client to azure
 		try
 		{
 			mClient = new MobileServiceClient(
 					"https://youwish.azure-mobile.net/",
 					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
+
+			// Get the Mobile Service Table instance to use
 			mUserTable = mClient.getTable(User.class);
 		}
 		catch (MalformedURLException e)
@@ -89,8 +96,8 @@ public class LoginActivity extends Activity
 				.setOnEditorActionListener(new TextView.OnEditorActionListener()
 				{
 					@Override
-					public boolean onEditorAction(TextView textView, int id,
-							KeyEvent keyEvent)
+					public boolean onEditorAction( TextView textView, int id,
+							KeyEvent keyEvent )
 					{
 						if (id == R.id.login || id == EditorInfo.IME_NULL)
 						{
@@ -115,9 +122,18 @@ public class LoginActivity extends Activity
 				new View.OnClickListener()
 				{
 					@Override
-					public void onClick(View view)
+					public void onClick( View view )
 					{
-						attemptLogin();
+						if (CloudManager.verifyConnection(getApplicationContext()) == true)
+						{
+
+							attemptLogin();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(),
+									"No Internet Connectivty", 1).show();
+						}
 					}
 				});
 
@@ -127,7 +143,7 @@ public class LoginActivity extends Activity
 		// Listening to register new account link
 		mRegisterScreen.setOnClickListener(new View.OnClickListener()
 		{
-			public void onClick(View v)
+			public void onClick( View v )
 			{
 				// Switching to Register screen
 				Intent i = new Intent(getApplicationContext(),
@@ -135,10 +151,11 @@ public class LoginActivity extends Activity
 				startActivity(i);
 			}
 		});
+
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
+	public boolean onCreateOptionsMenu( Menu menu )
 	{
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.login, menu);
@@ -219,17 +236,22 @@ public class LoginActivity extends Activity
 		}
 		else
 		{
+			// Encrypt Password
+			mPassword = encrypt(mPassword);
+			
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
-			
+
 			// Attempt to query using the email input using a callback
 			mUserTable.where().field("email").eq(mEmail)
 					.execute(new TableQueryCallback<User>()
 					{
 
-						public void onCompleted(List<User> result, int count, Exception exception,ServiceFilterResponse response)
+						public void onCompleted( List<User> result, int count,
+								Exception exception,
+								ServiceFilterResponse response )
 						{
 							if (exception == null)
 							{
@@ -237,10 +259,11 @@ public class LoginActivity extends Activity
 								for (User u : result)
 								{
 									showProgress(false);
-									// Compare retrieved password against password input
+									// Compare retrieved password against
+									// password input
 									if (u.getPassword().equals(mPassword))
 									{
-																				
+
 										session.createLoginSession(mEmail);
 										// Finish this activity
 										finish();
@@ -268,11 +291,36 @@ public class LoginActivity extends Activity
 		}
 	}
 
+	private String encrypt( String password )
+	{
+		MessageDigest md;
+		try
+		{
+			md = MessageDigest.getInstance("SHA-256");
+	        md.update(password.getBytes());
+	        
+	        byte byteData[] = md.digest();
+	 
+	        //convert the byte to hex format method 1
+	        StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < byteData.length; i++) {
+	         sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	        }
+	        password = sb.toString();
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return password;
+	}
+
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress(final boolean show)
+	private void showProgress( final boolean show )
 	{
 		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
 		// for very easy animations. If available, use these APIs to fade-in
@@ -288,7 +336,7 @@ public class LoginActivity extends Activity
 					.setListener(new AnimatorListenerAdapter()
 					{
 						@Override
-						public void onAnimationEnd(Animator animation)
+						public void onAnimationEnd( Animator animation )
 						{
 							mLoginStatusView.setVisibility(show ? View.VISIBLE
 									: View.GONE);
@@ -301,7 +349,7 @@ public class LoginActivity extends Activity
 					.setListener(new AnimatorListenerAdapter()
 					{
 						@Override
-						public void onAnimationEnd(Animator animation)
+						public void onAnimationEnd( Animator animation )
 						{
 							mLoginFormView.setVisibility(show ? View.GONE
 									: View.VISIBLE);

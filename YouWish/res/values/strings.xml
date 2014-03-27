@@ -2,8 +2,11 @@
 <resources>
 
     <string name="app_name">YouWish</string>
+    <string name="app_id">209843749224287</string>
     <string name="action_settings">Settings</string>
 
+    <string name="search">Search</string>
+    
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email"><b>Email</b></string>
@@ -44,8 +47,6 @@
 
     <string name="action_logout">Logout</string>
     <string name="title_activity_splash">SplashActivity</string>
-    
-    
     <string name="title_activity_add_wish">Add Wish</string>
     <string name="add_progress_signing_in">Adding Wish…</string>
     <string name="wish_title"><b>Title</b></string>
@@ -62,7 +63,31 @@
     <string name="wish_achieve"><b>Achieve By</b></string>
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
-    
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="hello_world">Hello world!</string>
     
 
+        <!-- Strings related to profile -->
+    <string name="profile_name">Full Name</string>
+    <string name="wish_button">Wishes</string>
+    <string name="follower_button">Followers</string>
+    <string name="following_button">Following</string>
+    <string name="profile_button">Profile</string>
+    
+    <!-- Strings related to profile bio -->
+    <string name="bio_title">Bio</string>
+    <string name="profile_bio">Users bio...</string>
+    <string name="edit_button">Edit Profile</string>
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    
+    <!-- Strings related to profile wish -->
+    <string name="profile_wishes">Wishes</string>
+    
+    <!-- Strings related to profile followers-->
+    <string name="followers_title">Followers</string>
+    
+    <!-- Strings related to profile following -->
+     <string name="following_title">Following</string>
+    
 </resources>

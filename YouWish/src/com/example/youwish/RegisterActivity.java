@@ -16,6 +16,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.support.v4.app.FragmentActivity;
 
 public class RegisterActivity extends FragmentActivity
@@ -100,8 +101,17 @@ public class RegisterActivity extends FragmentActivity
 					@Override
 					public void onClick(View view)
 					{
-						// Attempt to register
-						attemptRegister();
+						if (CloudManager.verifyConnection(getApplicationContext()) == true)
+						{
+							// Attempt to register
+							attemptRegister();
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(),
+									"No Internet Connectivty", 1).show();
+						}
+
 					}
 				});
 

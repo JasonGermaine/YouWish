@@ -1,7 +1,11 @@
 package com.example.youwish;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -11,11 +15,14 @@ import android.location.Location;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,11 +42,18 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableOperationCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -66,7 +80,7 @@ public class AddWishActivity extends FragmentActivity implements
 	private Uri uri;
 
 	// Variables for handling user input
-	private String mAchieveBy, mDesc, mLoc, mTitle, mUrl;
+	private String mAchieveBy, mDesc, mLoc, mTitle, mUrl, mImage;
 	private int mEan, mRating;
 	private boolean mExtraDetail, mIsLocation, mIsProduct;
 	private double mPrice;
@@ -83,19 +97,44 @@ public class AddWishActivity extends FragmentActivity implements
 	// UI Components
 	private EditText mAchieveByView, mDescView, mLocView, mPriceView,
 			mTitleView, mUrlView, mEanView;
-	private View mAchieveView, mExtraContent, mLocationView;
-	private Button mAddDetail;
-	private ImageButton mGalleryButton, mCameraButton, mLocButton;
+	private View mAchieveView, mExtraContent, mLocationView, mAddStatusView;
+	private Button mAddDetail, mGalleryButton, mCameraButton;
+	private ImageButton mLocButton;
 	private ImageView mImageView;
 	private RatingBar mRatingView;
 	private TextView mTitleAchieve, mTitleEAN, mTitleLocation, mTitlePrice,
 			mTitleURL;
+
+	private MobileServiceClient mClient;
+	private MobileServiceTable<Product> mProductTable;
+	private MobileServiceTable<BucketList> mBucketListTable;
+
+	private Product p;
+	private BucketList b;
 
 	protected void onCreate( Bundle savedInstanceState )
 	{
 		// Set the current layout
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_wish);
+
+		// Connect client to azure
+		try
+		{
+			mClient = new MobileServiceClient(
+					"https://youwish.azure-mobile.net/",
+					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
+			mProductTable = mClient.getTable(Product.class);
+			mBucketListTable = mClient.getTable(BucketList.class);
+		}
+		catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Create the status view
+		mAddStatusView = findViewById(R.id.add_status);
 
 		// Create directory
 		new File(dir).mkdirs();
@@ -122,8 +161,8 @@ public class AddWishActivity extends FragmentActivity implements
 		mTitleURL = ((TextView) findViewById(R.id.title_url));
 		mUrlView = ((EditText) findViewById(R.id.add_url));
 
-		mGalleryButton = ((ImageButton) findViewById(R.id.image_gallery));
-		mCameraButton = ((ImageButton) findViewById(R.id.image_camera));
+		mGalleryButton = ((Button) findViewById(R.id.image_gallery));
+		mCameraButton = ((Button) findViewById(R.id.image_camera));
 
 		mRatingView = ((RatingBar) findViewById(R.id.rating_priority));
 
@@ -295,7 +334,6 @@ public class AddWishActivity extends FragmentActivity implements
 		}
 	}
 
-	
 	public boolean onOptionsItemSelected( MenuItem item )
 	{
 		// Check if add button is pressed
@@ -314,7 +352,6 @@ public class AddWishActivity extends FragmentActivity implements
 				"datePicker");
 	}
 
-	
 	//
 	// Methods for obtaining gallery/camera and display image
 	//
@@ -325,7 +362,7 @@ public class AddWishActivity extends FragmentActivity implements
 		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
 				.format(new Date());
 		String path = dir + timestamp + ".jpg";
-		
+
 		// Create new file using path
 		mPhoto = new File(path);
 		try
@@ -335,7 +372,7 @@ public class AddWishActivity extends FragmentActivity implements
 			exif = new ExifInterface(mCurrentPath);
 
 			uri = Uri.fromFile(mPhoto);
-			
+
 			// Create intent for camera and start activity
 			Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
 			i.putExtra("output", uri);
@@ -357,12 +394,8 @@ public class AddWishActivity extends FragmentActivity implements
 			// Check if request is from the gallery
 			if (requestCode == REQUEST_IMAGE_GALLERY)
 			{
-				/*
-				 * uri = data.getData(); mPhoto = new File(uri.toString());
-				 * mCurrentPath = mPhoto.getAbsolutePath(); setPic();
-				 * galleryAddPic();
-				 */
-
+				uri = data.getData();
+				mPhoto = new File(uri.toString());
 				try
 				{
 					// We need to recyle unused bitmaps
@@ -370,14 +403,14 @@ public class AddWishActivity extends FragmentActivity implements
 					{
 						mBitmap.recycle();
 					}
-					
+
 					// Stream data into a bitmap
 					InputStream stream = getContentResolver().openInputStream(
 							data.getData());
 					mBitmap = BitmapFactory.decodeStream(stream);
 					stream.close();
-					
-					//Set ImageView to the bitmap created
+
+					// Set ImageView to the bitmap created
 					mImageView.setImageBitmap(mBitmap);
 				}
 				catch (FileNotFoundException e)
@@ -412,7 +445,7 @@ public class AddWishActivity extends FragmentActivity implements
 
 		// Create a scaled version of image to display
 		mBitmap = Bitmap.createScaledBitmap(b, imageW, imageH, true);
-		
+
 		// Display bitmap in ImageView
 		mImageView.setImageBitmap(mBitmap);
 	}
@@ -433,7 +466,7 @@ public class AddWishActivity extends FragmentActivity implements
 	{
 		// Create an instance of LocationClient
 		mLocationClient = new LocationClient(this, this, this);
-		
+
 		// connect to the client
 		mLocationClient.connect();
 	}
@@ -484,10 +517,10 @@ public class AddWishActivity extends FragmentActivity implements
 		protected String doInBackground( Location... params )
 		{
 			Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
-			
+
 			// Get the current location from the input parameter list
 			Location loc = params[0];
-			
+
 			// Create a list to contain the result address
 			List<Address> addresses = null;
 			try
@@ -555,14 +588,15 @@ public class AddWishActivity extends FragmentActivity implements
 	{
 		// local boolean to flag errors
 		boolean cancel = false;
-		
+
 		// focus view to set focus on error field
 		View focusView = null;
+
+		prepareImage();
 
 		mTitleView.setError(null);
 		mTitle = mTitleView.getText().toString();
 
-		
 		// Title field is required
 		// Check if title field as empty
 		if (TextUtils.isEmpty(mTitle))
@@ -587,10 +621,14 @@ public class AddWishActivity extends FragmentActivity implements
 				{
 
 					// TODO: Add Product (basic)
+					p = new Product(mImage, mTitle);
+					addProduct(p);
 				}
 				else
 				{
 					// TODO: Add BucketList (basic)
+					b = new BucketList(mImage, mTitle);
+					addBucket(b);
 				}
 			}
 		}
@@ -643,17 +681,167 @@ public class AddWishActivity extends FragmentActivity implements
 				mRating = (int) mRatingView.getRating();
 				if (mIsProduct)
 				{
-					mPrice = Double
-							.parseDouble(mPriceView.getText().toString());
-					mEan = Integer.parseInt(mEanView.getText().toString());
+					if (TextUtils.isEmpty(mPriceView.getText().toString()))
+					{
+						mPrice = 0.0;
+					}
+					else
+					{
+						mPrice = Double.parseDouble(mPriceView.getText()
+								.toString());
+					}
+
+					if (TextUtils.isEmpty(mEanView.getText().toString()))
+					{
+						mEan = 0;
+					}
+					else
+					{
+						mEan = Integer.parseInt(mEanView.getText().toString());
+					}
+
 					// TODO: Add Detailed Product
+					p = new Product(mImage, mTitle, mDesc, mLoc, mUrl, mRating,
+							mPrice, mEan);
+					
+					addProduct(p);
 				}
 				else
 				{
 					mAchieveBy = mAchieveByView.getText().toString();
 					// TODO: Add Detailed Product
+					// TODO: Add Detailed Product
+					b = new BucketList(mImage, mTitle, mDesc, mLoc, mUrl,
+							mRating, mAchieveBy);
+					
+					addBucket(b);
 				}
 			}
+		}
+	}
+
+	private void prepareImage()
+	{
+		mImage = null;
+		if (uri != null && !uri.equals(""))
+		{
+			try
+			{
+				Cursor cursor = getContentResolver().query(uri, null, null,
+						null, null);
+				cursor.moveToFirst();
+
+				int index = cursor
+						.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+				String absoluteFilePath = cursor.getString(index);
+				FileInputStream fis = new FileInputStream(absoluteFilePath);
+
+				int bytesRead = 0;
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				byte[] b = new byte[1024];
+				while ((bytesRead = fis.read(b)) != -1)
+				{
+					bos.write(b, 0, bytesRead);
+				}
+				byte[] bytes = bos.toByteArray();
+				mImage = Base64.encodeToString(bytes, Base64.DEFAULT);
+				
+				fis.close();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	private void addProduct( Product p )
+	{
+		// Attempt to insert using a callback
+		mProductTable.insert(p, new TableOperationCallback<Product>()
+		{
+			public void onCompleted( Product entity, Exception exception,
+					ServiceFilterResponse response )
+			{
+				showProgress(false);
+				if (exception == null)
+				{
+
+					// Finish this activity
+					finish();
+
+					// Start the Main Activity
+					Intent i = new Intent(getApplicationContext(),
+							MainActivity.class);
+					startActivity(i);
+				}
+				else
+				{
+
+				}
+			}
+		});
+	}
+
+	private void addBucket( BucketList b )
+	{
+		// Attempt to insert using a callback
+		mBucketListTable.insert(b, new TableOperationCallback<BucketList>()
+		{
+			public void onCompleted( BucketList entity, Exception exception,
+					ServiceFilterResponse response )
+			{
+				showProgress(false);
+				if (exception == null)
+				{
+					// Finish this activity
+					finish();
+
+					// Start the Main Activity
+					Intent i = new Intent(getApplicationContext(),
+							MainActivity.class);
+					startActivity(i);
+				}
+				else
+				{
+
+				}
+			}
+		});
+	}
+
+	/**
+	 * Shows the progress UI and hides the login form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress( final boolean show )
+	{
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+		{
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			mAddStatusView.setVisibility(View.VISIBLE);
+			mAddStatusView.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter()
+					{
+						@Override
+						public void onAnimationEnd( Animator animation )
+						{
+							mAddStatusView.setVisibility(show ? View.VISIBLE
+									: View.GONE);
+						}
+					});
+		}
+		else
+		{
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			mAddStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
 		}
 	}
 }
