@@ -1,5 +1,6 @@
 package com.example.youwish;
 
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
@@ -12,33 +13,42 @@ public class WishStreamFragment extends Fragment
 
 	private FragmentTabHost mTabHost;
 
-    //Mandatory Constructor
-    public WishStreamFragment() {
-    }
+	// Mandatory Constructor
+	public WishStreamFragment()
+	{
+	}
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	public void onCreate( Bundle savedInstanceState )
+	{
+		super.onCreate(savedInstanceState);
 
-    }
+	}
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+	public View onCreateView( LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState )
+	{
 
-    	
-        View rootView = inflater.inflate(R.layout.fragment_wish_stream,container, false);
+		View rootView = inflater.inflate(R.layout.fragment_wish_stream,
+				container, false);
 
-        mTabHost = (FragmentTabHost)rootView.findViewById(android.R.id.tabhost);
-        mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.realtabcontent);
-
-        mTabHost.addTab(mTabHost.newTabSpec("locality").setIndicator("Locality"),
-                WishStreamManager.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("popular").setIndicator("Popular"),
-        		WishStreamManager.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("recent").setIndicator("Recent"),
-        		WishStreamManager.class, null);
+		mTabHost = (FragmentTabHost) rootView
+				.findViewById(android.R.id.tabhost);
+		mTabHost.setup(getActivity(), getChildFragmentManager(),
+				R.id.realtabcontent);
 
 
-        return rootView;
-    }
-	
+		mTabHost.addTab(mTabHost.newTabSpec("wishes").setIndicator("Wishes"),
+				WishStreamManager.class, null);
+		
+		mTabHost.addTab(mTabHost.newTabSpec("products")
+				.setIndicator("Products"), WishStreamManager.class, null);
+
+
+		mTabHost.addTab(mTabHost.newTabSpec("buckets").setIndicator("Bucket Lists"),
+				WishStreamManager.class, null);
+
+
+		return rootView;
+	}
+
 }

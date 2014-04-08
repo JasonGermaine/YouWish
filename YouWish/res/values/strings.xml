@@ -4,9 +4,8 @@
     <string name="app_name">YouWish</string>
     <string name="app_id">209843749224287</string>
     <string name="action_settings">Settings</string>
-
     <string name="search">Search</string>
-    
+
     <!-- Strings related to login -->
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email"><b>Email</b></string>
@@ -28,11 +27,17 @@
     <string name="fname"><b>First Name</b></string>
     <string name="lname"><b>Last Name</b></string>
     <string name="dob"><b>Date Of Birth</b></string>
+    <string name="gender"><b>Gender</b></string>
+    <string name="male"><b>Male</b></string>
+    <string name="female"><b>Female</b></string>
     <string name="password_format">Password length must be at least 6 characters.</string>
+    <string name="confirm_password"><b>Confirm Password</b></string>
     <string name="action_register"><b>Register</b></string>
     <string name="already_member">Already have an account?</string>
     <string name="action_goto_login"><u>Login Here</u></string>
     <string name="dob_desc">Icon for date of birth</string>
+    <string name="password_incorrect">The passwords do not match</string>
+    <string name="recover_password">Please enter your email</string>
 
     <!-- Strings related to main navigation -->
     <string name="drawer_open">Open navigation drawer</string>
@@ -43,6 +48,7 @@
         <item>My Profile</item>
         <item>Wish Stream</item>
         <item>Search Users</item>
+        <item>Logout</item>
     </string-array>
 
     <string name="action_logout">Logout</string>
@@ -58,36 +64,41 @@
     <string name="wish_bucket"><b>Bucket List</b></string>
     <string name="wish_product"><b>Product</b></string>
     <string name="wish_price"><b>Price</b></string>
-    <string name="wish_ean"><b>EAN</b></string>
+    <string name="wish_ean"><b>Barcode</b></string>
     <string name="add_extra">Add more detail</string>
     <string name="wish_achieve"><b>Achieve By</b></string>
     <string name="gallery">Gallery</string>
     <string name="camera">Camera</string>
     <string name="title_activity_search">SearchActivity</string>
     <string name="hello_world">Hello world!</string>
-    
+    <string name="error_invalid_url">The url entered is invalid</string>
+    <string name="locality">Locality</string>
+    <string name="popular">Popular</string>
+    <string name="recent">Recent</string>
 
-        <!-- Strings related to profile -->
+    <!-- Strings related to profile -->
     <string name="profile_name">Full Name</string>
     <string name="wish_button">Wishes</string>
     <string name="follower_button">Followers</string>
     <string name="following_button">Following</string>
     <string name="profile_button">Profile</string>
-    
+
     <!-- Strings related to profile bio -->
     <string name="bio_title">Bio</string>
     <string name="profile_bio">Users bio...</string>
     <string name="edit_button">Edit Profile</string>
     <string name="save_button">Save</string>
     <string name="cancel_button">Cancel</string>
-    
+
     <!-- Strings related to profile wish -->
     <string name="profile_wishes">Wishes</string>
-    
-    <!-- Strings related to profile followers-->
+
+    <!-- Strings related to profile followers -->
     <string name="followers_title">Followers</string>
-    
+
     <!-- Strings related to profile following -->
-     <string name="following_title">Following</string>
-    
+    <string name="following_title">Following</string>
+    <string name="error_invalid_search">Please enter a user full name or valid email</string>
+    <string name="title_activity_base">BaseActivity</string>
+
 </resources>

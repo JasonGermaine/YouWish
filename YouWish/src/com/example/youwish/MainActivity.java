@@ -71,7 +71,6 @@ public class MainActivity extends FragmentActivity
 		// enable ActionBar app icon to behave as action to toggle nav drawer
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
-		getActionBar().setDisplayShowCustomEnabled(true);
 		getActionBar().setDisplayShowTitleEnabled(false);
 
 		
@@ -123,7 +122,6 @@ public class MainActivity extends FragmentActivity
 		// view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		menu.findItem(R.id.action_addwish).setVisible(!drawerOpen);
-		getActionBar().setDisplayShowCustomEnabled(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -146,20 +144,26 @@ public class MainActivity extends FragmentActivity
 			startActivity(i);
 			return true;
 		case R.id.action_logout:
-			// Clear the session data
-			// This will clear all session data and
-			// redirect user to LoginActivity
-			session.logoutUser();
-
-			// Switching to Register screen
-			Intent j = new Intent(getApplicationContext(), LoginActivity.class);
-			startActivity(j);
-			finish();
+			logout();
+			
 			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void logout()
+	{
+		// Clear the session data
+					// This will clear all session data and
+					// redirect user to LoginActivity
+					session.logoutUser();
+
+					// Switching to Register screen
+					Intent j = new Intent(getApplicationContext(), LoginActivity.class);
+					startActivity(j);
+					finish();
 	}
 
 	/* The click listener for ListView in the navigation drawer */
@@ -180,65 +184,38 @@ public class MainActivity extends FragmentActivity
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (position == 0)
 		{
-			// update the main content by replacing fragments
-			// Fragment fragment = new PlanetFragment();
-			// Bundle args = new Bundle();
-			// fragment.setArguments(args);
-			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-			// fragment.setArguments(args);
 
-			// FragmentManager fragmentManager = getSupportFragmentManager();
-			// fragmentManager.beginTransaction()
-			// .replace(R.id.content_frame, fragment).commit();
-			// Switching to Register screen
-			View v = inflater.inflate(R.layout.profile_title_bar, null);
-			//assign the view to the actionbar
-			getActionBar().setCustomView(v);
-			
-			//Intent j = new Intent(getApplicationContext(),
-				//	ProfileActivity.class);
-			//startActivity(j);
 
 		}
 		else if (position == 1)
-		{
-			View v = inflater.inflate(R.layout.stream_title_bar, null);
-			//assign the view to the actionbar
-			getActionBar().setCustomView(v);
-			
+		{	
 			// update the main content by replacing fragments
 			Fragment fragment = new WishStreamFragment();
 			Bundle args = new Bundle();
 			fragment.setArguments(args);
-			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-			// fragment.setArguments(args);
 
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction()
 					.replace(R.id.content_frame, fragment).commit();
 		}
-		else
+		else if (position == 2)
 		{
 
-			View v = inflater.inflate(R.layout.search_title_bar, null);
-			//assign the view to the actionbar
-			getActionBar().setCustomView(v);
-			
 			// update the main content by replacing fragments
 			Fragment fragment = new SearchUserFragment();
 			Bundle args = new Bundle();
 			fragment.setArguments(args);
-			// args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-			// fragment.setArguments(args);
 
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction()
 					.replace(R.id.content_frame, fragment).commit();
 
-			// update selected item and title, then close the drawer
+		}
+		else
+		{
+			logout();
 		}
 		mDrawerList.setItemChecked(position, true);
-		setTitle(mListTitles[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 

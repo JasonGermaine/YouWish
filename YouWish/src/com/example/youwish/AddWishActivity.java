@@ -3,10 +3,13 @@ package com.example.youwish;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Address;
@@ -24,6 +27,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -55,12 +60,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class AddWishActivity extends FragmentActivity implements
-		LocationListener, GooglePlayServicesClient.ConnectionCallbacks,
+public class AddWishActivity extends FragmentActivity implements LocationListener,
+		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener
 {
 	// Variables to store request codes for handling intents
@@ -70,8 +78,7 @@ public class AddWishActivity extends FragmentActivity implements
 
 	// Directory path in which to store images
 	private final String dir = Environment
-			.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-			+ "/YouWish/";
+			.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/YouWish/";
 
 	// ExifInterface is used to read/write JPEG properties
 	private ExifInterface exif;
@@ -82,7 +89,7 @@ public class AddWishActivity extends FragmentActivity implements
 	// Variables for handling user input
 	private String mAchieveBy, mDesc, mLoc, mTitle, mUrl, mImage;
 	private int mEan, mRating;
-	private boolean mExtraDetail, mIsLocation, mIsProduct;
+	private boolean mExtraDetail, mIsLocation, mIsProduct, mPickImage;
 	private double mPrice;
 
 	// Variables for working with images
@@ -95,25 +102,34 @@ public class AddWishActivity extends FragmentActivity implements
 	private LocationClient mLocationClient;
 
 	// UI Components
-	private EditText mAchieveByView, mDescView, mLocView, mPriceView,
-			mTitleView, mUrlView, mEanView;
+	private EditText mAchieveByView, mDescView, mLocView, mPriceView, mTitleView, mUrlView,
+			mEanView;
 	private View mAchieveView, mExtraContent, mLocationView, mAddStatusView;
 	private Button mAddDetail, mGalleryButton, mCameraButton;
 	private ImageButton mLocButton;
 	private ImageView mImageView;
 	private RatingBar mRatingView;
-	private TextView mTitleAchieve, mTitleEAN, mTitleLocation, mTitlePrice,
-			mTitleURL;
+	private TextView mTitleAchieve, mTitleEAN, mTitleLocation, mTitlePrice, mTitleURL;
 
 	private MobileServiceClient mClient;
 	private MobileServiceTable<Product> mProductTable;
 	private MobileServiceTable<BucketList> mBucketListTable;
+	private MobileServiceTable<User> mUserTable;
+	List<Pair<String, String>> queryParams = new ArrayList<Pair<String, String>>();
+
+	private ConnectionManager mConnection;
 
 	private Product p;
 	private BucketList b;
+	private ProgressDialog mProcess;
 
-	protected void onCreate( Bundle savedInstanceState )
+	protected void onCreate(Bundle savedInstanceState)
 	{
+		
+		mProcess = new ProgressDialog(this);
+		// Get ConnectionManager
+		mConnection = ConnectionManager.getConnectionManager();
+
 		// Set the current layout
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_wish);
@@ -121,17 +137,19 @@ public class AddWishActivity extends FragmentActivity implements
 		// Connect client to azure
 		try
 		{
-			mClient = new MobileServiceClient(
-					"https://youwish.azure-mobile.net/",
+			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
 					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
 			mProductTable = mClient.getTable(Product.class);
 			mBucketListTable = mClient.getTable(BucketList.class);
-		}
-		catch (MalformedURLException e)
+			mUserTable = mClient.getTable(User.class);
+		} catch (MalformedURLException e)
 		{
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Client Problem", Toast.LENGTH_SHORT).show();
+
 		}
+
+		mPickImage = false;
 
 		// Create the status view
 		mAddStatusView = findViewById(R.id.add_status);
@@ -178,7 +196,7 @@ public class AddWishActivity extends FragmentActivity implements
 		// Handle when location button is clicked
 		mLocButton.setOnClickListener(new View.OnClickListener()
 		{
-			public void onClick( View v )
+			public void onClick(View v)
 			{
 				// calling the get address method
 				getAddress();
@@ -188,7 +206,7 @@ public class AddWishActivity extends FragmentActivity implements
 		// Handle when gallery button is clicked
 		mGalleryButton.setOnClickListener(new View.OnClickListener()
 		{
-			public void onClick( View v )
+			public void onClick(View v)
 			{
 				// Create intent for gallery and start activity
 				Intent i = new Intent();
@@ -202,7 +220,7 @@ public class AddWishActivity extends FragmentActivity implements
 		// Handle when camera button is clicked
 		mCameraButton.setOnClickListener(new View.OnClickListener()
 		{
-			public void onClick( View v )
+			public void onClick(View v)
 			{
 				// Call the get photo method
 				takePhoto();
@@ -212,18 +230,17 @@ public class AddWishActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu( Menu menu )
+	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.add_wish, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
-	//
-	// Methods to handle basic UI events
-	//
-
-	public void addExtraDetail( View view )
+	/*
+	 * Handle UI Components Displays appropriate views for buttons clicked
+	 */
+	public void addExtraDetail(View view)
 	{
 		mExtraDetail = true;
 
@@ -251,8 +268,10 @@ public class AddWishActivity extends FragmentActivity implements
 
 	}
 
-	// Location/URL radio button handler
-	public void onLocURLClicked( View view )
+	/*
+	 * Location/URL radio button handler
+	 */
+	public void onLocURLClicked(View view)
 	{
 		// check if button is checked
 		boolean checked = ((RadioButton) view).isChecked();
@@ -288,8 +307,10 @@ public class AddWishActivity extends FragmentActivity implements
 
 	}
 
-	// Product/BucketList radio button handler
-	public void onWishTypeClicked( View view )
+	/*
+	 * Product/BucketList radio button handler
+	 */
+	public void onWishTypeClicked(View view)
 	{
 		// check if button is checked
 		boolean checked = ((RadioButton) view).isChecked();
@@ -334,33 +355,44 @@ public class AddWishActivity extends FragmentActivity implements
 		}
 	}
 
-	public boolean onOptionsItemSelected( MenuItem item )
+	/*
+	 * Handle events for menu buttons pressed
+	 */
+	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		// Check if add button is pressed
-		if (item == findViewById(R.id.action_add))
+		if (item.getItemId() == R.id.action_add)
 		{
-			// validate input if pressed
-			validate();
+			if (mConnection.verifyConnection(getApplicationContext()) == true)
+			{
+				// Internet access - attempt validation
+				validate();
+			}
+			else
+			{
+				// No connectivity - display error message
+				Toast.makeText(getApplicationContext(), "No Internet Connectivty",
+						Toast.LENGTH_SHORT).show();
+			}
 		}
 		return true;
 	}
 
-	// Get the appropriate date picker for this activity
-	public void showDatePickerDialog( View paramView )
+	/*
+	 * Get the appropriate date picker for this activity
+	 */
+	public void showDatePickerDialog(View paramView)
 	{
-		new DatePickerFragment(this).show(getSupportFragmentManager(),
-				"datePicker");
+		new DatePickerFragment(this).show(getSupportFragmentManager(), "datePicker");
 	}
 
-	//
-	// Methods for obtaining gallery/camera and display image
-	//
-
+	/*
+	 * Create a new file and send intent to take an image
+	 */
 	public void takePhoto()
 	{
 		// Create a unique file path
-		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-				.format(new Date());
+		String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 		String path = dir + timestamp + ".jpg";
 
 		// Create new file using path
@@ -378,15 +410,14 @@ public class AddWishActivity extends FragmentActivity implements
 			i.putExtra("output", uri);
 			startActivityForResult(i, REQUEST_IMAGE_CAPTURE);
 			return;
-		}
-		catch (IOException localIOException)
+		} catch (IOException localIOException)
 		{
 
 		}
 	}
 
 	// Capture result of activities
-	public void onActivityResult( int requestCode, int resultCode, Intent data )
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		// Check if the result came back ok
 		if (resultCode == RESULT_OK)
@@ -405,19 +436,16 @@ public class AddWishActivity extends FragmentActivity implements
 					}
 
 					// Stream data into a bitmap
-					InputStream stream = getContentResolver().openInputStream(
-							data.getData());
+					InputStream stream = getContentResolver().openInputStream(data.getData());
 					mBitmap = BitmapFactory.decodeStream(stream);
 					stream.close();
 
 					// Set ImageView to the bitmap created
 					mImageView.setImageBitmap(mBitmap);
-				}
-				catch (FileNotFoundException e)
+				} catch (FileNotFoundException e)
 				{
 					e.printStackTrace();
-				}
-				catch (IOException e)
+				} catch (IOException e)
 				{
 					e.printStackTrace();
 				}
@@ -431,26 +459,31 @@ public class AddWishActivity extends FragmentActivity implements
 				setPic();
 				galleryAddPic();
 			}
+
+			mPickImage = true;
 		}
 	}
 
-	public void setPic()
+	/*
+	 * Once a photo is taken, format it and set the image view with image taken
+	 */
+	private void setPic()
 	{
 		// Create a bitmap for the image captured
-		Bitmap b = BitmapFactory.decodeFile(mCurrentPath);
-		int imageW = mImageView.getWidth();
-		int imageH = mImageView.getHeight();
-
+		mBitmap = BitmapFactory.decodeFile(mCurrentPath);
+		
 		// TODO: Fix photo orientation
 
 		// Create a scaled version of image to display
-		mBitmap = Bitmap.createScaledBitmap(b, imageW, imageH, true);
+		//mBitmap = Bitmap.createScaledBitmap(b, imageW, imageH, true);
 
 		// Display bitmap in ImageView
 		mImageView.setImageBitmap(mBitmap);
 	}
 
-	// Add the captured to gallery folder
+	/*
+	 * Write the image taken to the phone's storage
+	 */
 	public void galleryAddPic()
 	{
 		// Create and execute the intent to write to gallery
@@ -459,11 +492,14 @@ public class AddWishActivity extends FragmentActivity implements
 		sendBroadcast(i);
 	}
 
-	//
-	// Methods for obtaining current location
-	//
+	/*
+	 * Initialize Location Client and make Connection
+	 */
 	public void getAddress()
 	{
+		mProcess.setMessage("Obtaining Location");
+		mProcess.show();
+		
 		// Create an instance of LocationClient
 		mLocationClient = new LocationClient(this, this, this);
 
@@ -471,7 +507,10 @@ public class AddWishActivity extends FragmentActivity implements
 		mLocationClient.connect();
 	}
 
-	public void onConnected( Bundle paramBundle )
+	/*
+	 * On connection, get location
+	 */
+	public void onConnected(Bundle paramBundle)
 	{
 		// Check for Geocoder
 		if (Geocoder.isPresent())
@@ -482,7 +521,7 @@ public class AddWishActivity extends FragmentActivity implements
 		}
 	}
 
-	public void onConnectionFailed( ConnectionResult paramConnectionResult )
+	public void onConnectionFailed(ConnectionResult paramConnectionResult)
 	{
 	}
 
@@ -490,10 +529,14 @@ public class AddWishActivity extends FragmentActivity implements
 	{
 	}
 
-	public void onLocationChanged( Location paramLocation )
+	public void onLocationChanged(Location paramLocation)
 	{
 	}
 
+	/*
+	 * Obtains and formats an address from Longitude and Latitude values. Displays the results in
+	 * the appropriate Edit Text area
+	 */
 	protected class GetAddressTask extends AsyncTask<Location, Void, String>
 	{
 		Context mContext;
@@ -504,17 +547,17 @@ public class AddWishActivity extends FragmentActivity implements
 			mContext = context;
 		}
 
-		/**
-		 * Get a Geocoder instance, get the latitude and longitude look up the
-		 * address, and return it
+		/*
+		 * Get a Geocoder instance, get the latitude and longitude look up the address, and return
+		 * it
 		 * 
 		 * @params params One or more Location objects
-		 * @return A string containing the address of the current location, or
-		 *         an empty string if no address can be found, or an error
-		 *         message
+		 * 
+		 * @return A string containing the address of the current location, or an empty string if no
+		 * address can be found, or an error message
 		 */
 		@Override
-		protected String doInBackground( Location... params )
+		protected String doInBackground(Location... params)
 		{
 			Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
 
@@ -528,22 +571,17 @@ public class AddWishActivity extends FragmentActivity implements
 				/*
 				 * Return 1 address.
 				 */
-				addresses = geocoder.getFromLocation(loc.getLatitude(),
-						loc.getLongitude(), 1);
-			}
-			catch (IOException e1)
+				addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+			} catch (IOException e1)
 			{
-				Log.e("LocationSampleActivity",
-						"IO Exception in getFromLocation()");
+				Log.e("LocationSampleActivity", "IO Exception in getFromLocation()");
 				e1.printStackTrace();
 				return ("IO Exception trying to get address");
-			}
-			catch (IllegalArgumentException e2)
+			} catch (IllegalArgumentException e2)
 			{
 				// Error message to post in the log
-				String errorString = "Illegal arguments "
-						+ Double.toString(loc.getLatitude()) + " , "
-						+ Double.toString(loc.getLongitude())
+				String errorString = "Illegal arguments " + Double.toString(loc.getLatitude())
+						+ " , " + Double.toString(loc.getLongitude())
 						+ " passed to address service";
 				Log.e("LocationSampleActivity", errorString);
 				e2.printStackTrace();
@@ -555,14 +593,11 @@ public class AddWishActivity extends FragmentActivity implements
 				// Get the first address
 				Address address = addresses.get(0);
 				/*
-				 * Format the first line of address (if available), city, and
-				 * country name.
+				 * Format the first line of address (if available), city, and country name.
 				 */
-				String addressText = String.format(
-						"%s, %s, %s",
-						// If there's a street address, add it
-						address.getMaxAddressLineIndex() > 0 ? address
-								.getAddressLine(0) : "",
+				String addressText = String.format("%s, %s, %s",
+				// If there's a street address, add it
+						address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
 						// Locality is usually a city
 						address.getLocality(),
 						// The country of the address
@@ -577,31 +612,63 @@ public class AddWishActivity extends FragmentActivity implements
 		}
 
 		@Override
-		protected void onPostExecute( String address )
+		protected void onPostExecute(String address)
 		{
 			// Set the location EditText to retrieved address
 			mLocView.setText(address);
+			mProcess.dismiss();
 		}
 	}
 
+	/*
+	 * Provide detailed validation for appropriate fields that are displayed
+	 */
 	public void validate()
 	{
+		mProcess.setMessage("Adding Wish");
+		mProcess.show();
+		
+		// Initialize the patterns to validate fields
+		Pattern regex = Pattern.compile("[$&+:;=?@#|]");
+		Pattern urlPattern = Pattern
+				.compile(
+						"((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
+						Pattern.CASE_INSENSITIVE);
+		Matcher m;
+
 		// local boolean to flag errors
 		boolean cancel = false;
 
 		// focus view to set focus on error field
 		View focusView = null;
 
-		prepareImage();
+		mImage = null;
+
+		// If an image has been takend or selected
+		if (mPickImage)
+		{
+			// get the base 64 string
+			mImage = Base64.encodeToString(getBytesFromBitmap(mBitmap), Base64.NO_WRAP);
+		}
 
 		mTitleView.setError(null);
 		mTitle = mTitleView.getText().toString();
+		mTitle = mTitle.replace("\"", "");
 
 		// Title field is required
-		// Check if title field as empty
+		// Test if title field as empty
 		if (TextUtils.isEmpty(mTitle))
 		{
 			mTitleView.setError(getString(R.string.error_field_required));
+			focusView = mTitleView;
+			cancel = true;
+		}
+
+		// Test is title contains illegal characters
+		m = regex.matcher(mTitle);
+		if (m.find())
+		{
+			mTitleView.setError(getString(R.string.error_invalid_format));
 			focusView = mTitleView;
 			cancel = true;
 		}
@@ -612,11 +679,13 @@ public class AddWishActivity extends FragmentActivity implements
 			// Check if errors were found
 			if (cancel == true)
 			{
+				mProcess.dismiss();
 				// set focus on field
 				focusView.requestFocus();
 			}
 			else
 			{
+				// Check if Wish is a Product
 				if (mIsProduct)
 				{
 
@@ -634,214 +703,193 @@ public class AddWishActivity extends FragmentActivity implements
 		}
 		else
 		{
+			// Validate extra fields
 			mDescView.setError(null);
 			mDesc = mDescView.getText().toString();
+			mDesc = mDesc.replace("\"", "");
+			m = regex.matcher(mDesc);
 
-			// TODO: Validate Appropriately
-			/*
-			 * if (mDesc.matches("\"")) {
-			 * 
-			 * 
-			 * }
-			 */
-
+			// Test if field contains invalid characters
+			if (m.find())
+			{
+				mDescView.setError(getString(R.string.error_invalid_format));
+				focusView = mDescView;
+				cancel = true;
+			}
 			// check for location/url radio button clicked
 			if (!mIsLocation)
 			{
 				mUrlView.setError(null);
 				mUrl = mUrlView.getText().toString();
 
-				// TODO: Validate Appropriately
-				/*
-				 * if (mUrl.contains("\"")) { localEditText = mUrlView; i = 1; }
-				 */
+				if (!TextUtils.isEmpty(mUrl))
+				{
+					// Test for valid url
+					m = urlPattern.matcher(mUrl);
+					if (!m.find())
+					{
+						mUrlView.setError(getString(R.string.error_invalid_url));
+						focusView = mUrlView;
+						cancel = true;
+					}
+				}
 			}
 			else
 			{
 				mLocView.setError(null);
 				mLoc = mLocView.getText().toString();
+				mLoc = mLoc.replace("\"", "");
+				m = regex.matcher(mLoc);
 
-				// TODO: Validate Appropriately
-				/*
-				 * if (mLoc.contains("\"")) {
-				 * 
-				 * 
-				 * }
-				 */
+				// Test if field contains invalid characters
+				if (m.find())
+				{
+					mLocView.setError(getString(R.string.error_invalid_format));
+					focusView = mLocView;
+					cancel = true;
+				}
+
 			}
 
 			// check if error was fount
 			if (cancel == true)
 			{
+				mProcess.dismiss();
 				// set focus on error field
 				focusView.requestFocus();
 			}
 			else
 			{
 				mRating = (int) mRatingView.getRating();
+
+				// If Wish is a Product
 				if (mIsProduct)
 				{
+					// If no price entered
 					if (TextUtils.isEmpty(mPriceView.getText().toString()))
 					{
 						mPrice = 0.0;
 					}
 					else
 					{
-						mPrice = Double.parseDouble(mPriceView.getText()
-								.toString());
+						// Set price
+						mPrice = Double.parseDouble(mPriceView.getText().toString());
 					}
 
+					// If no barcode entered
 					if (TextUtils.isEmpty(mEanView.getText().toString()))
 					{
 						mEan = 0;
 					}
 					else
 					{
+						// Set barcode
 						mEan = Integer.parseInt(mEanView.getText().toString());
 					}
 
 					// TODO: Add Detailed Product
-					p = new Product(mImage, mTitle, mDesc, mLoc, mUrl, mRating,
-							mPrice, mEan);
-					
+					p = new Product(mImage, mTitle, mDesc, mLoc, mUrl, mRating, mPrice, mEan);
+
 					addProduct(p);
 				}
 				else
 				{
+					// Set achieve by date
 					mAchieveBy = mAchieveByView.getText().toString();
 					// TODO: Add Detailed Product
 					// TODO: Add Detailed Product
-					b = new BucketList(mImage, mTitle, mDesc, mLoc, mUrl,
-							mRating, mAchieveBy);
-					
+					b = new BucketList(mImage, mTitle, mDesc, mLoc, mUrl, mRating, mAchieveBy);
+
 					addBucket(b);
 				}
 			}
 		}
 	}
 
-	private void prepareImage()
-	{
-		mImage = null;
-		if (uri != null && !uri.equals(""))
-		{
-			try
-			{
-				Cursor cursor = getContentResolver().query(uri, null, null,
-						null, null);
-				cursor.moveToFirst();
-
-				int index = cursor
-						.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-				String absoluteFilePath = cursor.getString(index);
-				FileInputStream fis = new FileInputStream(absoluteFilePath);
-
-				int bytesRead = 0;
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				byte[] b = new byte[1024];
-				while ((bytesRead = fis.read(b)) != -1)
-				{
-					bos.write(b, 0, bytesRead);
-				}
-				byte[] bytes = bos.toByteArray();
-				mImage = Base64.encodeToString(bytes, Base64.DEFAULT);
-				
-				fis.close();
-			}
-			catch (Exception ex)
-			{
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	private void addProduct( Product p )
+	/*
+	 * Send Product to the server to be validated and inserted
+	 */
+	private void addProduct(Product p)
 	{
 		// Attempt to insert using a callback
 		mProductTable.insert(p, new TableOperationCallback<Product>()
 		{
-			public void onCompleted( Product entity, Exception exception,
-					ServiceFilterResponse response )
+			public void onCompleted(Product entity, Exception exception,
+					ServiceFilterResponse response)
 			{
-				showProgress(false);
 				if (exception == null)
 				{
-
+					mProcess.dismiss();
 					// Finish this activity
 					finish();
 
 					// Start the Main Activity
-					Intent i = new Intent(getApplicationContext(),
-							MainActivity.class);
+					Intent i = new Intent(getApplicationContext(), MainActivity.class);
 					startActivity(i);
 				}
 				else
 				{
-
+					mProcess.dismiss();
+					createAndShowDialog(exception, "Error");
 				}
 			}
 		});
 	}
 
-	private void addBucket( BucketList b )
+	/*
+	 * Send BucketList to the server to be validated and inserted
+	 */
+	private void addBucket(BucketList b)
 	{
+
 		// Attempt to insert using a callback
 		mBucketListTable.insert(b, new TableOperationCallback<BucketList>()
 		{
-			public void onCompleted( BucketList entity, Exception exception,
-					ServiceFilterResponse response )
+			public void onCompleted(BucketList entity, Exception exception,
+					ServiceFilterResponse response)
 			{
-				showProgress(false);
 				if (exception == null)
 				{
+					mProcess.dismiss();
 					// Finish this activity
 					finish();
 
 					// Start the Main Activity
-					Intent i = new Intent(getApplicationContext(),
-							MainActivity.class);
+					Intent i = new Intent(getApplicationContext(), MainActivity.class);
 					startActivity(i);
 				}
 				else
 				{
-
+					mProcess.dismiss();
+					createAndShowDialog(exception, "Error");
 				}
 			}
 		});
 	}
 
-	/**
-	 * Shows the progress UI and hides the login form.
+	// convert from bitmap to byte array
+	/*
+	 * Method to convert Bitmpap to bytes to be encoded to a String
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress( final boolean show )
+	public byte[] getBytesFromBitmap(Bitmap bitmap)
 	{
-		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-		// for very easy animations. If available, use these APIs to fade-in
-		// the progress spinner.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-		{
-			int shortAnimTime = getResources().getInteger(
-					android.R.integer.config_shortAnimTime);
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		bitmap.compress(CompressFormat.JPEG, 70, stream);
+		return stream.toByteArray();
+	}
 
-			mAddStatusView.setVisibility(View.VISIBLE);
-			mAddStatusView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
-					.setListener(new AnimatorListenerAdapter()
-					{
-						@Override
-						public void onAnimationEnd( Animator animation )
-						{
-							mAddStatusView.setVisibility(show ? View.VISIBLE
-									: View.GONE);
-						}
-					});
-		}
-		else
-		{
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-			mAddStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-		}
+	private void createAndShowDialog(Exception exception, String title)
+	{
+		createAndShowDialog(exception.getCause().getMessage(), title);
+	}
+
+	private void createAndShowDialog(String message, String title)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setMessage(message);
+		builder.setTitle(title);
+		builder.setPositiveButton("OK", null);
+		builder.create().show();
 	}
 }

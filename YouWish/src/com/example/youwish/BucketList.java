@@ -2,7 +2,7 @@ package com.example.youwish;
 
 public class BucketList extends Wish
 {
-	@com.google.gson.annotations.SerializedName("achieveBy")
+	@com.google.gson.annotations.SerializedName("achieve")
 	private String mAchieveBy;
 
 	public String getAchieveBy()

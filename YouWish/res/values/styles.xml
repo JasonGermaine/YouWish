@@ -17,7 +17,6 @@
     <style name="MainActionBarTheme"
            parent="android:style/Theme.Holo.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <item name="android:activatedBackgroundIndicator">@drawable/list_activated_background</item>
     </style>
 
     <!-- Application theme. -->
@@ -32,7 +31,7 @@
     </style>
     
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">#02ADE6</item>
+        <item name="android:background">@drawable/action_bar_gradient</item>
         <item name="android:titleTextStyle">@style/MyActionBar.TitleTextStyle</item>
 </style>
 

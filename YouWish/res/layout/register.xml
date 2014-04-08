@@ -2,8 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".LoginActivity" >
 
-    
-    
     <!-- Registration progress -->
 
     <LinearLayout
@@ -30,177 +28,239 @@
             android:text="@string/login_progress_signing_in"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
-    
-<ScrollView
-  android:id="@+id/register_form"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
-  android:fillViewport="true">
-  
-	
-	
-  <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-        android:background="@layout/login_background"
-        android:descendantFocusability="beforeDescendants"
-		android:focusableInTouchMode="true">
- 
-      
 
-	
-      
-        <!--  Header  Starts-->
-        <LinearLayout 
-            	android:id="@+id/header"
+    <ScrollView
+        android:id="@+id/register_form"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@layout/login_background"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true" >
+
+            <!-- Header  Starts -->
+
+            <LinearLayout
+                android:id="@+id/header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dip"
-                android:paddingBottom="5dip">
-                <!-- Logo Start-->
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip" >
+
+                <!-- Logo Start -->
 
                 <ImageView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dip"
                     android:layout_marginLeft="10dip"
+                    android:layout_marginTop="15dip"
                     android:contentDescription="@string/logo_desc"
                     android:src="@drawable/logo" />
 
                 <!-- Logo Ends -->
-        </LinearLayout>
-        <!--  Header Ends -->
- 
-        <!-- Registration Form -->
-        <LinearLayout
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:padding="10dip"
-          android:layout_below="@id/header">
-                
-          <!-- First Name -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/fname"/>
-          <EditText 
-              	android:id="@+id/reg_firstname"
-                android:layout_width="fill_parent"
+            </LinearLayout>
+            <!-- Header Ends -->
+
+
+            <!-- Registration Form -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:singleLine="true"
-                android:inputType="textCapSentences|textAutoCorrect"
-                android:layout_marginBottom="20dip"/>
-          
-          	<!-- Last Name -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/lname"/>
-          <EditText 
-              	android:id="@+id/reg_lastname"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:inputType="textCapSentences|textAutoCorrect"
-                android:singleLine="true"
-                android:layout_marginBottom="20dip"/>
-          
-          <!-- Date Of Birth -->
-          <TextView
-				style="@style/LoginRegisterText"
-				android:text="@string/dob"/>
-          
-          <LinearLayout
-              	android:orientation="horizontal"
-              	android:layout_marginTop="5dip"
-          		android:layout_width="match_parent"
-          		android:layout_height="wrap_content">
-	          <EditText
-	              	android:id="@+id/dob_field"
-					android:layout_width = "0dp"
-					android:layout_weight=".70"
-			       	android:layout_height= "wrap_content"
-			        android:clickable="false" 
-			        android:cursorVisible="false" 
-			        android:focusable="false" 
-			        android:inputType="none"
-			        android:focusableInTouchMode="false"/>
-	          
-	           <ImageButton 
-	              	android:id="@+id/pick_dob"
-	              	android:contentDescription="@string/dob_desc"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:src="@drawable/calendar"
-	                android:onClick="showDatePickerDialog"/>
-          </LinearLayout>
-          <!--  Email Label -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/prompt_email"/>
-      
-          <EditText
-                android:id="@+id/email_field"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:layout_marginBottom="20dip"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:singleLine="true"/>
-          
-          <!-- Password Label -->
-          <TextView 
-              	style="@style/LoginRegisterText"
-                android:text="@string/prompt_password"/>
-          <TextView
-              	android:text="@string/password_format"
-              	android:layout_width="fill_parent"
-        		android:layout_height="wrap_content"
-        		android:textColor="#000"
-        		android:textSize = "14sp"/>
-          <EditText
-                android:id="@+id/password_field"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:imeActionId="@+id/login"
-                android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:singleLine="true" />
-          
-          <!-- Register Button -->
-          <Button 
-              	android:id="@+id/btnRegister"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:text="@string/action_register"/>
-          
-          <!-- Link to Login Screen -->
-          <TextView 
-              	android:id="@+id/already_have_account"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dip"
-                android:text="@string/already_member"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:textColor="#000"/>
-          <TextView 
-              	android:id="@+id/link_to_login"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="40dip"
-                android:text="@string/action_goto_login"
-                android:gravity="center"
-                android:textSize="20sp"
-                android:textColor="#000"/>
- 
-        </LinearLayout>
-        <!-- Registration Form Ends -->
-  </RelativeLayout>
-</ScrollView>
+                android:layout_below="@id/header"
+                android:orientation="vertical"
+                android:padding="10dip" >
+
+                <!-- First Name -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/fname" />
+
+                <EditText
+                    android:id="@+id/reg_firstname"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
+                    android:layout_marginTop="5dip"
+                    android:inputType="textCapSentences|textAutoCorrect"
+                    android:singleLine="true" />
+
+                <!-- Last Name -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/lname" />
+
+                <EditText
+                    android:id="@+id/reg_lastname"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
+                    android:layout_marginTop="5dip"
+                    android:inputType="textCapSentences|textAutoCorrect"
+                    android:singleLine="true" />
+
+                <!-- Date Of Birth -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/gender" />
+
+                <!-- Gender -->
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_horizontal" >
+
+                    <RadioGroup
+                        android:id="@+id/radio_gender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+                        <RadioButton
+                            android:id="@+id/radio_male"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="20.0sp"
+                            android:checked="true"
+                            android:text="@string/male"
+                            android:textColor="#000000" />
+
+                        <RadioButton
+                            android:id="@+id/radio_female"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/female"
+                            android:textColor="#000000" />
+                    </RadioGroup>
+                </RelativeLayout>
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/dob" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginBottom="10dip"
+                    android:orientation="horizontal" >
+
+                    <EditText
+                        android:id="@+id/dob_field"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight=".70"
+                        android:clickable="false"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:inputType="none" />
+
+                    <ImageButton
+                        android:id="@+id/pick_dob"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/dob_desc"
+                        android:onClick="showDatePickerDialog"
+                        android:src="@drawable/calendar" />
+                </LinearLayout>
+                <!-- Email Label -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/prompt_email" />
+
+                <EditText
+                    android:id="@+id/email_field"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dip"
+                    android:layout_marginTop="5dip"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <!-- Password Label -->
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/prompt_password" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/password_format"
+                    android:textColor="#000"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/password_field"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginBottom="10dip"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+                <TextView
+                    style="@style/LoginRegisterText"
+                    android:text="@string/confirm_password" />
+
+                <EditText
+                    android:id="@+id/password_confirm"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dip"
+                    android:layout_marginBottom="10dip"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+                <!-- Register Button -->
+
+                <Button
+                    android:id="@+id/btnRegister"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_register" />
+
+                <!-- Link to Login Screen -->
+
+                <TextView
+                    android:id="@+id/already_have_account"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dip"
+                    android:gravity="center"
+                    android:text="@string/already_member"
+                    android:textColor="#000"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/link_to_login"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="40dip"
+                    android:gravity="center"
+                    android:text="@string/action_goto_login"
+                    android:textColor="#000"
+                    android:textSize="20sp" />
+            </LinearLayout>
+            <!-- Registration Form Ends -->
+        </RelativeLayout>
+    </ScrollView>
+
 </merge>
