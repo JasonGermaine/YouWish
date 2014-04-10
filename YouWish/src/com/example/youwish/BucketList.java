@@ -1,5 +1,12 @@
 package com.example.youwish;
 
+import java.util.Date;
+
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+
 public class BucketList extends Wish
 {
 	@com.google.gson.annotations.SerializedName("achieve")
@@ -15,18 +22,20 @@ public class BucketList extends Wish
 		this.mAchieveBy = achieveBy;
 	}
 
-	public BucketList(String image, String title)
+	public BucketList(String image, String title, String userId)
 	{
-		super(image, title);
+		super(image, title, userId);
 		this.mAchieveBy = null;
 	}
 
 	public BucketList(String image, String title, String desc, String location,
-			String url, int priority, String date)
+			String url, int priority, Date time, String date, String userId)
 	{
-		super(image, title, desc, location, url, priority);
+		super(image, title, desc, location, url, priority, time, userId);
 		this.mAchieveBy = date;
 	}
+
+
 
 	@com.google.gson.annotations.SerializedName("id")
 	private String mId;
@@ -41,9 +50,14 @@ public class BucketList extends Wish
 		this.mId = id;
 	}
 
+
+
 	@Override
 	public boolean equals( Object o )
 	{
 		return o instanceof BucketList && ((BucketList) o).mId == mId;
 	}
+	
+	
+	
 }

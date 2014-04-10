@@ -1,5 +1,12 @@
 package com.example.youwish;
 
+import java.util.Date;
+
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+
 public class Product extends Wish
 {
 
@@ -13,18 +20,18 @@ public class Product extends Wish
 	public int getEan() { return mEan; }
 	public void setEan(int ean) { this.mEan = ean; }
 	
-	public Product(String image, String title)
+	public Product(String image, String title, String userId)
 	{
-		super(image, title);
+		super(image, title, userId);
 		this.mPrice = 0.0;
 		this.mEan = 0;
 		// TODO Auto-generated constructor stub
 	}
 
 	public Product(String image, String title, String desc, String location,
-			String url, int priority, double price, int ean)
+			String url, int priority, Date time, double price, int ean, String userId)
 	{
-		super(image, title, desc, location, url, priority);
+		super(image, title, desc, location, url, priority, time, userId);
 		this.mPrice = price;
 		this.mEan = ean;
 	}
@@ -40,5 +47,8 @@ public class Product extends Wish
 	public boolean equals(Object o) {
 		return o instanceof Product && ((Product) o).mId == mId;
 	}
+	
+	
+
 
 }

@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -122,9 +123,15 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	private Product p;
 	private BucketList b;
 	private ProgressDialog mProcess;
+	
+	// Session Manager Class
+	private SessionManager session;
 
 	protected void onCreate(Bundle savedInstanceState)
 	{
+
+		// Session class instance
+		session = SessionManager.getSessionManager(getApplicationContext());
 		
 		mProcess = new ProgressDialog(this);
 		// Get ConnectionManager
@@ -401,13 +408,13 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 		{
 			mPhoto.createNewFile();
 			mCurrentPath = mPhoto.getAbsolutePath();
-			exif = new ExifInterface(mCurrentPath);
 
 			uri = Uri.fromFile(mPhoto);
 
 			// Create intent for camera and start activity
 			Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
 			i.putExtra("output", uri);
+			i.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); 
 			startActivityForResult(i, REQUEST_IMAGE_CAPTURE);
 			return;
 		} catch (IOException localIOException)
@@ -438,14 +445,24 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 					// Stream data into a bitmap
 					InputStream stream = getContentResolver().openInputStream(data.getData());
 					mBitmap = BitmapFactory.decodeStream(stream);
-					stream.close();
+					try
+					{
+						stream.close();
+					} catch (IOException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					uri = data.getData();
+					mPhoto = new File(getRealPathFromURI(uri));
+					mCurrentPath = mPhoto.getAbsolutePath();
 
 					// Set ImageView to the bitmap created
-					mImageView.setImageBitmap(mBitmap);
+					//mImageView.setImageBitmap(mBitmap);
+					setPic();
+
 				} catch (FileNotFoundException e)
-				{
-					e.printStackTrace();
-				} catch (IOException e)
 				{
 					e.printStackTrace();
 				}
@@ -464,21 +481,65 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 		}
 	}
 
+	private String getRealPathFromURI(Uri contentURI)
+	{
+		String result;
+		Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+		if (cursor == null)
+		{ // Source is Dropbox or other similar local file path
+			result = contentURI.getPath();
+		}
+		else
+		{
+			cursor.moveToFirst();
+			int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+			result = cursor.getString(idx);
+			cursor.close();
+		}
+		return result;
+	}
+
 	/*
 	 * Once a photo is taken, format it and set the image view with image taken
 	 */
 	private void setPic()
 	{
-		// Create a bitmap for the image captured
-		mBitmap = BitmapFactory.decodeFile(mCurrentPath);
-		
-		// TODO: Fix photo orientation
+		try {
+	        File f = new File(mCurrentPath);
+	        ExifInterface exif = new ExifInterface(f.getPath());
+	        int orientation = exif.getAttributeInt(
+	                ExifInterface.TAG_ORIENTATION,
+	                ExifInterface.ORIENTATION_NORMAL);
 
-		// Create a scaled version of image to display
-		//mBitmap = Bitmap.createScaledBitmap(b, imageW, imageH, true);
+	        int angle = 0;
 
-		// Display bitmap in ImageView
-		mImageView.setImageBitmap(mBitmap);
+	        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+	            angle = 90;
+	        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+	            angle = 180;
+	        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+	            angle = 270;
+	        }
+
+	        Matrix mat = new Matrix();
+	        mat.postRotate(angle);
+	        BitmapFactory.Options options = new BitmapFactory.Options();
+	        options.inSampleSize = 2;
+
+	        Bitmap bmp = BitmapFactory.decodeStream(new FileInputStream(f),
+	                null, options);
+	        mBitmap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+	                bmp.getHeight(), mat, true);
+	        ByteArrayOutputStream outstudentstreamOutputStream = new ByteArrayOutputStream();
+	        mBitmap.compress(Bitmap.CompressFormat.PNG, 100,
+	                outstudentstreamOutputStream);
+	        mImageView.setImageBitmap(mBitmap);
+
+	    } catch (IOException e) {
+	        Log.w("TAG", "-- Error in setting image");
+	    } catch (OutOfMemoryError oom) {
+	        Log.w("TAG", "-- OOM Error in setting image");
+	    }
 	}
 
 	/*
@@ -499,7 +560,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	{
 		mProcess.setMessage("Obtaining Location");
 		mProcess.show();
-		
+
 		// Create an instance of LocationClient
 		mLocationClient = new LocationClient(this, this, this);
 
@@ -625,9 +686,11 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	 */
 	public void validate()
 	{
+		String userId = session.getUserDetails();
+		Date timeStamp = new Date();
 		mProcess.setMessage("Adding Wish");
 		mProcess.show();
-		
+
 		// Initialize the patterns to validate fields
 		Pattern regex = Pattern.compile("[$&+:;=?@#|]");
 		Pattern urlPattern = Pattern
@@ -690,13 +753,13 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 				{
 
 					// TODO: Add Product (basic)
-					p = new Product(mImage, mTitle);
+					p = new Product(mImage, mTitle, userId);
 					addProduct(p);
 				}
 				else
 				{
 					// TODO: Add BucketList (basic)
-					b = new BucketList(mImage, mTitle);
+					b = new BucketList(mImage, mTitle, userId);
 					addBucket(b);
 				}
 			}
@@ -788,7 +851,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 					}
 
 					// TODO: Add Detailed Product
-					p = new Product(mImage, mTitle, mDesc, mLoc, mUrl, mRating, mPrice, mEan);
+					p = new Product(mImage, mTitle, mDesc, mLoc, mUrl, mRating, timeStamp, mPrice, mEan, userId);
 
 					addProduct(p);
 				}
@@ -798,7 +861,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 					mAchieveBy = mAchieveByView.getText().toString();
 					// TODO: Add Detailed Product
 					// TODO: Add Detailed Product
-					b = new BucketList(mImage, mTitle, mDesc, mLoc, mUrl, mRating, mAchieveBy);
+					b = new BucketList(mImage, mTitle, mDesc, mLoc, mUrl, mRating, timeStamp, mAchieveBy, userId);
 
 					addBucket(b);
 				}
@@ -811,6 +874,8 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	 */
 	private void addProduct(Product p)
 	{
+		p.setUserId(session.getUserDetails());
+		p.setTimeStamp();
 		// Attempt to insert using a callback
 		mProductTable.insert(p, new TableOperationCallback<Product>()
 		{
@@ -842,6 +907,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	private void addBucket(BucketList b)
 	{
 
+		b.setUserId(session.getUserDetails());
 		// Attempt to insert using a callback
 		mBucketListTable.insert(b, new TableOperationCallback<BucketList>()
 		{

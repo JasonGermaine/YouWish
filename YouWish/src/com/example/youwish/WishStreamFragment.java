@@ -34,7 +34,7 @@ public class WishStreamFragment extends Fragment
 		mTabHost = (FragmentTabHost) rootView
 				.findViewById(android.R.id.tabhost);
 		mTabHost.setup(getActivity(), getChildFragmentManager(),
-				R.id.realtabcontent);
+				android.R.id.tabcontent);
 
 
 		mTabHost.addTab(mTabHost.newTabSpec("wishes").setIndicator("Wishes"),

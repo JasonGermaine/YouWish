@@ -52,7 +52,7 @@ public class SearchUserFragment extends ListFragment
 	private EditText mSearchView;
 
 	// Strings to manage query
-	private String mQuery, mFName, mLName, mEmail;
+	private String mQuery, mFName, mLName, mEmail, mFNameOnly;
 
 	// Validation Components
 	private Matcher m;
@@ -218,8 +218,8 @@ public class SearchUserFragment extends ListFragment
 								if (m.find() == false)
 								{
 									// If invalid email, test for valid first name
-									mFName = mQuery;
-									m = namePattern.matcher(mFName);
+									mFNameOnly = mQuery;
+									m = namePattern.matcher(mFNameOnly);
 
 									if (m.find() == true)
 									{
@@ -258,7 +258,7 @@ public class SearchUserFragment extends ListFragment
 	{
 
 		// Attempt to query using the email input using a callback
-		mUserTable.where().toLower("email").eq(mEmail).or().toUpper("fname").eq(mFName).or()
+		mUserTable.where().toLower("email").eq(mEmail).or().toUpper("fname").eq(mFNameOnly).or()
 				.toUpper("fname").eq(mFName).and().toUpper("lname").eq(mLName)
 				.execute(new TableQueryCallback<User>()
 				{

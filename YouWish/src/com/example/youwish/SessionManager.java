@@ -56,7 +56,6 @@ public class SessionManager
 		return sm;
 	}
 	
-	
 
 	/**
 	 * Create login session
@@ -92,15 +91,13 @@ public class SessionManager
 	/**
 	 * Get stored session data
 	 * */
-	public HashMap<String, String> getUserDetails()
+	public String getUserDetails()
 	{
-		HashMap<String, String> user = new HashMap<String, String>();
 
 		// user email id
-		user.put(KEY_EMAIL, pref.getString(KEY_EMAIL, null));
-
+		String email = pref.getString(KEY_EMAIL, null);
 		// return user
-		return user;
+		return email;
 	}
 
 	/**
