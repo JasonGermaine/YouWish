@@ -6,57 +6,67 @@
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/bio_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/profile_name"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/bio_name_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp" >
-
-        <Button
-            android:id="@+id/profile_button1"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/wish_button" />
-
-        <Button
-            android:id="@+id/profile_button2"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/follower_button" />
-
-        <Button
-            android:id="@+id/profile_button3"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/following_button" />
-
-    </LinearLayout>
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/bio_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="@string/bio_title"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/bio_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:text="@string/profile_bio" >
+        android:text="@string/profile_bio"
+        android:visibility="gone" >
 
         <requestFocus />
     </EditText>
+
+    <TextView
+        android:id="@+id/bio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/bio"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
         android:id="@+id/Button01"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/edit_button" />
+        android:layout_marginTop="40dp"
+        android:minHeight="30dp"
+        android:minWidth="40dp"
+        android:text="@string/edit_button"
+        android:textSize="12sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -67,15 +77,25 @@
             android:id="@+id/Button02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="90dp"
-            android:text="@string/save_button" />
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:minHeight="30dp"
+     	    android:minWidth="90dp"
+            android:text="@string/save_button" 
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/Button03"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="90dp"
-            android:text="@string/cancel_button" />
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="20dp"
+            android:minHeight="30dp"
+       	    android:minWidth="90dp"
+            android:text="@string/cancel_button" 
+            android:textSize="12sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

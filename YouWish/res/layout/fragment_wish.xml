@@ -1,57 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_wish"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp" >
-
-        <Button
-            android:id="@+id/profile_button1"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/profile_button" />
-
-        <Button
-            android:id="@+id/profile_button2"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/follower_button" />
-
-        <Button
-            android:id="@+id/profile_button3"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/following_button" />
-
-    </LinearLayout>
-
     <TextView
-        android:id="@+id/wish_title"
+        android:id="@+id/wishes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/wish_title"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/wishes"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <ImageView
-        android:id="@+id/wish_image"
-        android:layout_width="wrap_content"
+    
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/image_preview" />
-
-    <TextView
-        android:id="@+id/wish_desc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/wish_desc"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:divider="#b5b5b5"
+        android:dividerHeight="1dp"
+        android:listSelector="@drawable/wish_selector" />
 
 </LinearLayout>

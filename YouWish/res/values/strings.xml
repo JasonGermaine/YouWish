@@ -89,9 +89,13 @@
     <string name="edit_button">Edit Profile</string>
     <string name="save_button">Save</string>
     <string name="cancel_button">Cancel</string>
-
-    <!-- Strings related to profile wish -->
+    
     <string name="profile_wishes">Wishes</string>
+    <string name="follow_button">Follow</string>
+    <string name="unfollow_button">Unfollow</string>
+    <string name="bio">Age, Location, Occupation, Description .................... ...................</string>
+    <string name="wishes">Wishes</string>
+    
 
     <!-- Strings related to profile followers -->
     <string name="followers_title">Followers</string>

@@ -200,11 +200,10 @@ public class WishAdapter extends ArrayAdapter<Wish>
 		if(w.getPriority() != 0)
 		{
 			rating.setVisibility(View.VISIBLE);
-			rating.setRating(w.getPriority() - 1);
+			rating.setRating(w.getPriority());
 		}
 		
 		dialog.show();
-		Log.i("Click List", "Show");
 		
 		
 		button.setOnClickListener(new View.OnClickListener() 

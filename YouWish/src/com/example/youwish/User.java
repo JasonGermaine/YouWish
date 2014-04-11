@@ -118,6 +118,18 @@ public class User
 		this.mDOB = DOB;
 
 	}
+	
+	public User(String email, String password, String fName, String lName, String gender, String DOB, String bio)
+	{
+		this.mEmail = email;
+		this.mGender = gender;
+		setPassword(password);
+		this.mFName = fName;
+		this.mLName = lName;
+		this.mDOB = DOB;
+		this.mBio = bio;
+
+	}
 
 	public User()
 	{
@@ -163,6 +175,20 @@ public class User
 		this.mId = id;
 	}
 	
+	
+	@com.google.gson.annotations.SerializedName("bio")
+	private String mBio;
+
+	public String getBio()
+	{
+		return mBio;
+	}
+
+	public void setBio(String bio)
+	{
+		this.mBio = bio;
+	}
+
 	
 
 	@Override

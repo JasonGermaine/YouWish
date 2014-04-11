@@ -184,7 +184,14 @@ public class MainActivity extends FragmentActivity
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (position == 0)
 		{
+			// update the main content by replacing fragments
+			Fragment fragment = new ProfileFragment();
+			Bundle args = new Bundle();
+			fragment.setArguments(args);
 
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+					.replace(R.id.content_frame, fragment).commit();
 
 		}
 		else if (position == 1)

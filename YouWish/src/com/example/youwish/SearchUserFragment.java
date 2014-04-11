@@ -31,6 +31,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -57,7 +58,7 @@ public class SearchUserFragment extends ListFragment
 	// Validation Components
 	private Matcher m;
 	private Pattern namePattern, emailPattern;
-	
+
 	private ProgressDialog mProcess;
 
 	public SearchUserFragment()
@@ -78,7 +79,7 @@ public class SearchUserFragment extends ListFragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		mProcess = new ProgressDialog(getActivity());
-		
+
 		mConnection = ConnectionManager.getConnectionManager();
 
 		// Connect client to azure
@@ -146,7 +147,6 @@ public class SearchUserFragment extends ListFragment
 						mSearchView.setError(null);
 						View focusView = null;
 
-						// Clear any previous search results
 						mAdapter.clear();
 
 						// Get search query
@@ -217,19 +217,13 @@ public class SearchUserFragment extends ListFragment
 								m = emailPattern.matcher(mEmail);
 								if (m.find() == false)
 								{
-									// If invalid email, test for valid first name
-									mFNameOnly = mQuery;
-									m = namePattern.matcher(mFNameOnly);
 
-									if (m.find() == true)
-									{
-										mSearchView
-												.setError(getString(R.string.error_invalid_search));
-										focusView = mSearchView;
-										focusView.requestFocus();
-										mProcess.dismiss();
-										return false;
-									}
+									mSearchView.setError(getString(R.string.error_invalid_search));
+									focusView = mSearchView;
+									focusView.requestFocus();
+									mProcess.dismiss();
+									return false;
+
 								}
 							}
 						}
@@ -258,7 +252,7 @@ public class SearchUserFragment extends ListFragment
 	{
 
 		// Attempt to query using the email input using a callback
-		mUserTable.where().toLower("email").eq(mEmail).or().toUpper("fname").eq(mFNameOnly).or()
+		mUserTable.where().toLower("email").eq(mEmail).or()
 				.toUpper("fname").eq(mFName).and().toUpper("lname").eq(mLName)
 				.execute(new TableQueryCallback<User>()
 				{
