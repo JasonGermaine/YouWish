@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
+import com.microsoft.windowsazure.mobileservices.TableOperationCallback;
 import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 
 import android.app.AlertDialog;
@@ -21,6 +22,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,10 +45,7 @@ public class SearchUserFragment extends ListFragment
 {
 	private ConnectionManager mConnection;
 
-	// Create Client
-	private MobileServiceClient mClient;
-	private MobileServiceTable<User> mUserTable;
-
+	private AzureService mAzureService;
 	// UI Components
 	private ListView userList;
 	private UserAdapter mAdapter;
@@ -80,21 +79,10 @@ public class SearchUserFragment extends ListFragment
 	{
 		mProcess = new ProgressDialog(getActivity());
 
+		mAzureService = ((YouWishApplication) getActivity().getApplication()).getService();
+		mAzureService.setClient(getActivity().getApplicationContext());
+
 		mConnection = ConnectionManager.getConnectionManager();
-
-		// Connect client to azure
-		try
-		{
-			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", getActivity());
-
-			// Get the Mobile Service Table instance to use
-			mUserTable = mClient.getTable(User.class);
-		} catch (MalformedURLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		// Inflate view for this fragment
 		View rootView = inflater.inflate(R.layout.fragment_search_user, container, false);
@@ -183,7 +171,8 @@ public class SearchUserFragment extends ListFragment
 									// Set the two words to first and last name
 									mFName = names[0].toUpperCase();
 									mLName = names[1].toUpperCase();
-
+									Log.i("LNAME", mLName);
+									Log.i("FNAME", mFName);
 									// Validate names
 									m = namePattern.matcher(mFName);
 									if (m.find() == true)
@@ -205,26 +194,41 @@ public class SearchUserFragment extends ListFragment
 										mProcess.dismiss();
 										return false;
 									}
+
+									searchFullName();
 								}
 							}
 							else
 							{
-
 								// One word query, at first assume email
 								mEmail = mQuery.toLowerCase();
 
-								// Test for valid Emial
+								// Test for valid Email
 								m = emailPattern.matcher(mEmail);
 								if (m.find() == false)
 								{
-
-									mSearchView.setError(getString(R.string.error_invalid_search));
-									focusView = mSearchView;
-									focusView.requestFocus();
-									mProcess.dismiss();
-									return false;
+									mFNameOnly = mQuery;
+									m = namePattern.matcher(mFNameOnly);
+									if (m.find() == true)
+									{
+										mSearchView
+												.setError(getString(R.string.error_invalid_search));
+										focusView = mSearchView;
+										focusView.requestFocus();
+										mProcess.dismiss();
+										return false;
+									}
+									else
+									{
+										searchFirstName();
+									}
 
 								}
+								else
+								{
+									searchEmail();
+								}
+
 							}
 						}
 
@@ -233,28 +237,16 @@ public class SearchUserFragment extends ListFragment
 						imm.hideSoftInputFromWindow(getActivity().getWindow().getCurrentFocus()
 								.getWindowToken(), 0);
 						mSearchView.clearFocus();
-
-						// Specify your database function here.
-						search();
 						return true;
 					}
 				}
 				mProcess.dismiss();
 				return false;
 			}
-		});
-	}
 
-	/*
-	 * Search the DB using the validated search criteria
-	 */
-	private void search()
-	{
-
-		// Attempt to query using the email input using a callback
-		mUserTable.where().toLower("email").eq(mEmail).or()
-				.toUpper("fname").eq(mFName).and().toUpper("lname").eq(mLName)
-				.execute(new TableQueryCallback<User>()
+			private void searchFirstName()
+			{
+				mAzureService.searchFirstName(mFNameOnly, new TableQueryCallback<User>()
 				{
 
 					public void onCompleted(List<User> result, int count, Exception exception,
@@ -287,6 +279,87 @@ public class SearchUserFragment extends ListFragment
 					}
 				});
 
+			}
+
+			private void searchFullName()
+			{
+				mAzureService.searchFullName(mFName, mLName, new TableQueryCallback<User>()
+				{
+
+					public void onCompleted(List<User> result, int count, Exception exception,
+							ServiceFilterResponse response)
+					{
+						if (exception == null)
+						{
+							if (result.isEmpty())
+							{
+								mProcess.dismiss();
+								createAndShowDialog("There are no results matching your search!",
+										"No Results Found");
+							}
+							else
+							{
+
+								for (User u : result)
+								{
+									mAdapter.add(u);
+									mProcess.dismiss();
+								}
+
+							}
+						}
+						else
+						{
+							mProcess.dismiss();
+							createAndShowDialog(exception, "Error");
+						}
+					}
+				});
+
+			}
+
+			private void searchEmail()
+			{
+				// Attempt to query using the email input using a callback
+				mAzureService.lookup(mEmail, new TableOperationCallback<User>()
+				{
+
+					@Override
+					public void onCompleted(User entity, Exception exception,
+							ServiceFilterResponse response)
+					{
+
+						if (exception == null)
+						{
+
+							if (entity == null)
+							{
+								mProcess.dismiss();
+								createAndShowDialog(
+										"The is no user currently registered with that email!",
+										"Invalid Email");
+							}
+							else
+							{
+								mProcess.dismiss();
+								mAdapter.add(entity);
+							}
+						}
+						else
+						{
+
+							createAndShowDialog(
+									"The is no user currently registered with that email!",
+									"Invalid Email");
+							mProcess.dismiss();
+
+						}
+
+					}
+				});
+
+			}
+		});
 	}
 
 	/*

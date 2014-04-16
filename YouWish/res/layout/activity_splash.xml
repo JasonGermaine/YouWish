@@ -1,16 +1,22 @@
-<RelativeLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashActivity" 
-    android:background="@layout/login_background">
+    android:background="@layout/login_background"
+    tools:context=".SplashActivity" >
 
-   <ImageView
+    <ImageView
         android:id="@+id/imgLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:src="@drawable/logo" />
+
+    <ProgressBar
+        android:id="@+id/progress_load"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/imgLogo"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

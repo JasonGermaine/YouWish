@@ -2,44 +2,38 @@ package com.example.youwish;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.util.Log;
 
 public class YouWishApplication extends Application
 {
 	private AzureService mAzureService;
-	private Activity mCurrentActivity;
-	private User user;
+	private Context mContext;
+	private User mUser;
 	
 	public YouWishApplication()
 	{
-		
+		mAzureService = new AzureService();
 	}
 	
 	public User getUser()
 	{
-		return user;
+		return mUser;
 	}
 	
 	public void setUser(User u)
 	{
-		this.user = user;
+		mUser = u;
+	}
+	
+	public void eraseUser()
+	{
+		mUser = null;
 	}
 
-	public AzureService getAuthService()
+	public AzureService getService()
 	{
-		if (mAzureService == null)
-		{
-			mAzureService = new AzureService(this);
-		}
 		return mAzureService;
 	}
 
-	public void setCurrentActivity(Activity activity)
-	{
-		mCurrentActivity = activity;
-	}
-
-	public Activity getCurrentActivity()
-	{
-		return mCurrentActivity;
-	}
 }

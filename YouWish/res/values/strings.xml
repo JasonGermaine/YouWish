@@ -104,5 +104,22 @@
     <string name="following_title">Following</string>
     <string name="error_invalid_search">Please enter a user full name or valid email</string>
     <string name="title_activity_base">BaseActivity</string>
-
+    
+    <string name="load_more">tap to load</string>
+    
+    <string name="manage_account">Account Management</string>
+    
+    <string name="email_preference">Enter a new email address</string>
+    <string name="summary_email_preference">Change your email address</string>
+    <string name="title_email_preference">Email</string>
+    
+    <string name="password_preference">Enter a new password</string>
+    <string name="summary_password_preference">Change your password</string>
+    <string name="title_password_preference">Password</string>
+    
+    <string name="support">Support</string>
+    <string name="contact_summary">Send us an email.</string>
+    <string name="contact">Contact Us</string>
+    
+    <string name="title_activity_settings">Settings</string>
 </resources>

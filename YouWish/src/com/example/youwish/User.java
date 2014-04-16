@@ -7,7 +7,7 @@ import java.util.Random;
 public class User
 {
 
-	@com.google.gson.annotations.SerializedName("email")
+	@com.google.gson.annotations.SerializedName("id")
 	private String mEmail;
 
 	public String getEmail()
@@ -162,19 +162,6 @@ public class User
 		this.mPassword = sb.toString();
 	}
 
-	@com.google.gson.annotations.SerializedName("id")
-	private String mId;
-
-	public String getId()
-	{
-		return mId;
-	}
-
-	public void setId(String id)
-	{
-		this.mId = id;
-	}
-	
 	
 	@com.google.gson.annotations.SerializedName("bio")
 	private String mBio;
@@ -194,7 +181,7 @@ public class User
 	@Override
 	public boolean equals(Object o)
 	{
-		return o instanceof User && ((User) o).mId == mId;
+		return o instanceof User && ((User) o).mEmail == mEmail;
 	}
 
 }

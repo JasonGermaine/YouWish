@@ -50,7 +50,7 @@ public class NavAdapter extends ArrayAdapter<String>
 		{
 			image.setImageResource(R.drawable.ic_action_search);
 		}
-		else if (position == 3)
+		else
 		{
 			image.setImageResource(R.drawable.ic_action_logout);
 		}

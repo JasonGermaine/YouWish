@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
-	
+
 	public static Context CONTEXT;
 
 	private CharSequence mDrawerTitle;
@@ -44,7 +44,7 @@ public class MainActivity extends FragmentActivity
 	private SessionManager session;
 
 	@Override
-	protected void onCreate( Bundle savedInstanceState )
+	protected void onCreate(Bundle savedInstanceState)
 	{
 		CONTEXT = this;
 
@@ -61,8 +61,7 @@ public class MainActivity extends FragmentActivity
 
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
-		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
-				GravityCompat.START);
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 
 		mDrawerList.setAdapter(new NavAdapter(this, mListTitles));
@@ -73,8 +72,6 @@ public class MainActivity extends FragmentActivity
 		getActionBar().setHomeButtonEnabled(true);
 		getActionBar().setDisplayShowTitleEnabled(false);
 
-		
-		
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the sliding drawer and the action bar app icon
 		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
@@ -84,13 +81,13 @@ public class MainActivity extends FragmentActivity
 		R.string.drawer_close /* "close drawer" description for accessibility */
 		)
 		{
-			public void onDrawerClosed( View view )
+			public void onDrawerClosed(View view)
 			{
 				invalidateOptionsMenu(); // creates call to
 											// onPrepareOptionsMenu()
 			}
 
-			public void onDrawerOpened( View drawerView )
+			public void onDrawerOpened(View drawerView)
 			{
 				getActionBar().setTitle(mDrawerTitle);
 				invalidateOptionsMenu(); // creates call to
@@ -107,7 +104,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu( Menu menu )
+	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
@@ -116,7 +113,7 @@ public class MainActivity extends FragmentActivity
 
 	/* Called whenever we call invalidateOptionsMenu() */
 	@Override
-	public boolean onPrepareOptionsMenu( Menu menu )
+	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		// If the nav drawer is open, hide action items related to the content
 		// view
@@ -126,7 +123,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected( MenuItem item )
+	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		// The action bar home/up action should open or close the drawer.
 		// ActionBarDrawerToggle will take care of this.
@@ -139,15 +136,18 @@ public class MainActivity extends FragmentActivity
 		switch (item.getItemId())
 		{
 		case R.id.action_addwish:
-			Intent i = new Intent(getApplicationContext(),
-					AddWishActivity.class);
+			Intent i = new Intent(getApplicationContext(), AddWishActivity.class);
 			startActivity(i);
 			return true;
 		case R.id.action_logout:
 			logout();
-			
+
 			return true;
 
+		case R.id.action_settings:
+			Intent j = new Intent(getApplicationContext(), SettingActivity.class);
+			startActivity(j);
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -156,29 +156,28 @@ public class MainActivity extends FragmentActivity
 	private void logout()
 	{
 		// Clear the session data
-					// This will clear all session data and
-					// redirect user to LoginActivity
-					session.logoutUser();
+		// This will clear all session data and
+		// redirect user to LoginActivity
+		session.logoutUser();
+		((YouWishApplication) getApplication()).eraseUser();
+		;
 
-					// Switching to Register screen
-					Intent j = new Intent(getApplicationContext(), LoginActivity.class);
-					startActivity(j);
-					finish();
+		Intent j = new Intent(getApplicationContext(), LoginActivity.class);
+		startActivity(j);
+		finish();
 	}
 
 	/* The click listener for ListView in the navigation drawer */
-	private class DrawerItemClickListener implements
-			ListView.OnItemClickListener
+	private class DrawerItemClickListener implements ListView.OnItemClickListener
 	{
 		@Override
-		public void onItemClick( AdapterView<?> parent, View view,
-				int position, long id )
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 		{
 			selectItem(position);
 		}
 	}
 
-	private void selectItem( int position )
+	private void selectItem(int position)
 	{
 		LayoutInflater inflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -190,20 +189,18 @@ public class MainActivity extends FragmentActivity
 			fragment.setArguments(args);
 
 			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction()
-					.replace(R.id.content_frame, fragment).commit();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 		}
 		else if (position == 1)
-		{	
+		{
 			// update the main content by replacing fragments
 			Fragment fragment = new WishStreamFragment();
 			Bundle args = new Bundle();
 			fragment.setArguments(args);
 
 			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction()
-					.replace(R.id.content_frame, fragment).commit();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 		}
 		else if (position == 2)
 		{
@@ -214,8 +211,7 @@ public class MainActivity extends FragmentActivity
 			fragment.setArguments(args);
 
 			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction()
-					.replace(R.id.content_frame, fragment).commit();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 		}
 		else
@@ -226,14 +222,13 @@ public class MainActivity extends FragmentActivity
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 
-
 	/**
-	 * When using the ActionBarDrawerToggle, you must call it during
-	 * onPostCreate() and onConfigurationChanged()...
+	 * When using the ActionBarDrawerToggle, you must call it during onPostCreate() and
+	 * onConfigurationChanged()...
 	 */
 
 	@Override
-	protected void onPostCreate( Bundle savedInstanceState )
+	protected void onPostCreate(Bundle savedInstanceState)
 	{
 		super.onPostCreate(savedInstanceState);
 		// Sync the toggle state after onRestoreInstanceState has occurred.
@@ -241,38 +236,10 @@ public class MainActivity extends FragmentActivity
 	}
 
 	@Override
-	public void onConfigurationChanged( Configuration newConfig )
+	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
 		// Pass any configuration change to the drawer toggls
 		mDrawerToggle.onConfigurationChanged(newConfig);
-	}
-
-	/**
-	 * Fragment that appears in the "content_frame", shows a planet
-	 */
-	public static class PlanetFragment extends Fragment
-	{
-		public static final String ARG_PLANET_NUMBER = "planet_number";
-
-		public PlanetFragment()
-		{
-			// Empty constructor required for fragment subclasses
-		}
-
-		/*
-		 * @Override public View onCreateView(LayoutInflater inflater, ViewGroup
-		 * container, Bundle savedInstanceState) { View rootView =
-		 * inflater.inflate(R.layout.fragment_planet, container, false); int i =
-		 * getArguments().getInt(ARG_PLANET_NUMBER); String list_item =
-		 * getResources().getStringArray(R.array.list_array)[i];
-		 * 
-		 * int imageId =
-		 * getResources().getIdentifier(list_item.toLowerCase(Locale
-		 * .getDefault()), "drawable", getActivity().getPackageName());
-		 * ((ImageView)
-		 * rootView.findViewById(R.id.image)).setImageResource(imageId);
-		 * getActivity().setTitle(list_item); return rootView; }
-		 */
 	}
 }

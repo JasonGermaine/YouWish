@@ -15,8 +15,6 @@ import com.microsoft.windowsazure.mobileservices.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.TableQueryCallback;
 
-
-
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -58,12 +57,20 @@ public class WishStreamManager extends ListFragment
 	private ArrayList<Product> mProds;
 	private ArrayList<BucketList> mBucks;
 
+	private Button mButton;
 	private WishAdapter mAdapter;
 	private ListView wishList;
 
 	private ProgressDialog mProcess;
+	private ProgressBar mProgress;
+	
+	private boolean mGotProds, mGotBucks, mProdEmpty, mBuckEmpty;
 
-	private boolean mGotProds, mGotBucks;
+	private AzureService mAzureService;
+
+	private int mProdCounter, mBuckCounter;
+
+	private User user;
 
 	public WishStreamManager()
 	{
@@ -72,82 +79,148 @@ public class WishStreamManager extends ListFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
+		mBuckCounter = 0;
+		mProdCounter = 0;
+		mProdEmpty = false;
+		mBuckEmpty = false;
+
 		View rootView = inflater.inflate(R.layout.list_wish, container, false);
 
-		try
-		{
-			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", getActivity());
+		mAzureService = ((YouWishApplication) getActivity().getApplication()).getService();
+		mAzureService.setClient(getActivity().getApplicationContext());
 
-			// Get the Mobile Service Table instance to use
-			mProductTable = mClient.getTable(Product.class);
-			mBucketTable = mClient.getTable(BucketList.class);
-		} catch (MalformedURLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		user = ((YouWishApplication) getActivity().getApplication()).getUser();
 
 		mProcess = new ProgressDialog(getActivity());
 
 		mProcess.setMessage("Loading Wishes");
 		mProcess.setCancelable(false);
 		mProcess.show();
+
+		mProgress = (ProgressBar) rootView.findViewById(R.id.progress_wish);
 		
+		mButton = (Button) rootView.findViewById(R.id.load_wishes);
+		mButton.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				getContent();
+				mButton.setVisibility(View.GONE);
+				
+			}
+		});
+
 		// Create an adapter to bind the items with the view
 		mAdapter = new WishAdapter(getActivity(), R.layout.wish_row);
 		wishList = (ListView) rootView.findViewById(android.R.id.list);
 		wishList.setAdapter(mAdapter);
 
-
-
-
 		mGotProds = false;
 		mGotBucks = false;
 
-		//sortWishes();
+		// sortWishes();
 		getContent();
 
 		return rootView;
 	}
 
-	
-
 	private void getContent()
 	{
-		mProductTable.top(10).orderBy("time_stamp", QueryOrder.Descending)
-				.execute(new TableQueryCallback<Product>()
+		mButton.setVisibility(View.GONE);
+		mProgress.setVisibility(View.VISIBLE);
+		if (!mProdEmpty && !mBuckEmpty)
+		{
+			Log.i("STREAM", "GETTING PRODUCTS AND BUCKETS");
+			mGotProds = false;
+			mGotBucks = false;
+
+			getProducts();
+			getBuckets();
+
+		}
+		else if (!mProdEmpty)
+		{
+			Log.i("STREAM", "GETTING PRODUCTS");
+			getProducts();
+		}
+		else if (!mBuckEmpty)
+		{
+			Log.i("STREAM", "GETTING BUCKETS");
+			getBuckets();
+		}
+		else
+		{
+			Log.i("STREAM", "EMPTY");
+			mProgress.setVisibility(View.GONE);
+		}
+	}
+
+	private void getProducts()
+	{
+		mAzureService.streamProducts(mProdCounter, new TableQueryCallback<Product>()
+		{
+			public void onCompleted(List<Product> result, int count, Exception exception,
+					ServiceFilterResponse response)
+			{
+				if (exception == null)
 				{
-					public void onCompleted(List<Product> result, int count, Exception exception,
-							ServiceFilterResponse response)
+					mProds = (ArrayList<Product>) result;
+
+					if (mProds.isEmpty())
 					{
-						if (exception == null)
-						{
-							mProds = (ArrayList<Product>) result;
-							mGotProds = true;
-
-							for (Wish w : mProds)
-							{
-								mAdapter.add(w);
-							}
-							mProcess.dismiss();
-						}
-						else
-						{
-							createAndShowDialog(exception, "Error");
-						}
+						Log.i("AZURE", "EMPTY PRDDUCTS " + result.size());
+						mProdEmpty = true;
 					}
-				});
+					else
+					{
+						Log.i("AZURE", "PRDDUCTS " + result.size());
+						mProdCounter += result.size();
 
-		/*
-		 * mBucketTable.top(10).orderBy("time_stamp", QueryOrder.Descending) .execute(new
-		 * TableQueryCallback<BucketList>() { public void onCompleted(List<BucketList> result, int
-		 * count, Exception exception, ServiceFilterResponse response) { if (exception == null) {
-		 * mGotBucks = true; mBucks = (ArrayList<BucketList>) result; } else {
-		 * createAndShowDialog(exception, "Error"); } } });
-		 */
-		// Thread myThread = new Thread(r);
-		// myThread.start();
+					}
+					mGotProds = true;
+					sortWishes();
+
+				}
+				else
+				{
+					createAndShowDialog(exception, "Error");
+				}
+			}
+		});
+	}
+
+	private void getBuckets()
+	{
+		mAzureService.streamBucketList(mBuckCounter, new TableQueryCallback<BucketList>()
+		{
+			public void onCompleted(List<BucketList> result, int count, Exception exception,
+					ServiceFilterResponse response)
+			{
+				if (exception == null)
+				{
+					mBucks = (ArrayList<BucketList>) result;
+					if (mBucks.isEmpty())
+					{
+						Log.i("AZURE", "EMPTY BUCKETS " + result.size());
+						mBuckEmpty = true;
+					}
+					else
+					{
+						Log.i("AZURE", "BUCKETS " + result.size());
+						mBuckCounter += result.size();
+					}
+
+					mGotBucks = true;
+					sortWishes();
+				}
+				else
+				{
+					createAndShowDialog(exception, "Error");
+				}
+			}
+		});
+
 	}
 
 	private void sortWishes()
@@ -158,8 +231,9 @@ public class WishStreamManager extends ListFragment
 			if (mProds.isEmpty() && mBucks.isEmpty())
 			{
 				mProcess.dismiss();
-				createAndShowDialog("There are no results matching your search!",
+				createAndShowDialog("There are no more wishes to load!",
 						"No Results Found");
+				mProgress.setVisibility(View.GONE);
 			}
 			else
 			{
@@ -218,8 +292,9 @@ public class WishStreamManager extends ListFragment
 						}
 					}
 				}
-
 				mProcess.dismiss();
+				mProgress.setVisibility(View.GONE);
+				mButton.setVisibility(View.VISIBLE);
 			}
 
 		}

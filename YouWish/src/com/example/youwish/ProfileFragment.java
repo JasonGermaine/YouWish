@@ -31,7 +31,7 @@ public class ProfileFragment extends Fragment
 	private ImageView mProfilePic, mFollow, mFollowing; 
 	private ProgressDialog mProcess;
 	
-	private User user = new User();
+	private User user;
 	private MobileServiceClient mClient;
 	private MobileServiceTable<User> mUserTable;
 	private String mFName;
@@ -52,15 +52,12 @@ public class ProfileFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-    	
+		user = ((YouWishApplication) getActivity().getApplication()).getUser();
+		
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 
         getActivity().setTitle("Profile");
-        
-        mProcess = new ProgressDialog(getActivity());
-		mProcess.setMessage("Loading Profile");
-		mProcess.setCancelable(false);
-		mProcess.show();
+ 
         
         mTabHost = (FragmentTabHost)rootView.findViewById(android.R.id.tabhost);
         mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.realtabcontent);
@@ -83,34 +80,9 @@ public class ProfileFragment extends Fragment
 		mFollow = (ImageView) rootView.findViewById(R.id.follow);
 		mFollowing = (ImageView) rootView.findViewById(R.id.following);
 		
-		mUserTable.lookUp("B9BF3D09-6D41-485C-9292-F12EEB3BE843", new TableOperationCallback<User>() {
-			@Override
-			public void onCompleted(User entity, Exception exception,
-					ServiceFilterResponse response) 
-			{
-				if(exception == null)
-				{
-					if(entity.getFName() == null || entity.getFName() == "")
-					{
-						
-					}
-					else
-					{
-						user.setBio(entity.getBio());
-						user.setFName(entity.getFName());
-						user.setLName(entity.getLName());
-						mName.setText(entity.getFName() + " " + entity.getLName());
-						
-					}
-					
-				}
-				else
-				{
-					
-				}
-				mProcess.dismiss();
-			}
-		});
+		mName.setText(user.getFName() + " " + user.getLName());
+
+		
 		mFollow.setOnClickListener(new View.OnClickListener()
 		{
 			public void onClick( View v )

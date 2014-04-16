@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -26,15 +27,18 @@ import android.support.v4.app.FragmentActivity;
 
 public class RegisterActivity extends FragmentActivity
 {
+	private AzureService mAzureService;
 
 	// Create Client
 	private MobileServiceClient mClient;
 	private MobileServiceTable<User> mUserTable;
 
 	private ConnectionManager mConnection;
-	
+
 	// Create User to register
 	private User user;
+
+	private SessionManager session;
 
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -46,8 +50,7 @@ public class RegisterActivity extends FragmentActivity
 
 	// UI references.
 	private TextView mLoginScreen;
-	private EditText mFNameView, mLNameView, mEmailView, mPasswordView,
-			mPasswordConfirm;
+	private EditText mFNameView, mLNameView, mEmailView, mPasswordView, mPasswordConfirm;
 	private EditText mDOBView;
 	private View mRegisterStatusView;
 	private View mRegisterFormView;
@@ -55,47 +58,43 @@ public class RegisterActivity extends FragmentActivity
 	private RadioButton mRadioMale, mRadioFemale;
 
 	@Override
-	public void onCreate( Bundle savedInstanceState )
+	public void onCreate(Bundle savedInstanceState)
 	{
-		mConnection = ConnectionManager.getConnectionManager();
-		
-		super.onCreate(savedInstanceState);
+		session = SessionManager.getSessionManager(getApplicationContext());
 
-		// Connect client to azure
-		try
-		{
-			mClient = new MobileServiceClient(
-					"https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
-			mUserTable = mClient.getTable(User.class);
-		}
-		catch (MalformedURLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		mAzureService = ((YouWishApplication) getApplication()).getService();
+		mAzureService.setClient(getApplicationContext());
+
+		mConnection = ConnectionManager.getConnectionManager();
+
+		super.onCreate(savedInstanceState);
 
 		// Set View to register.xml
 		setContentView(R.layout.register);
 
 		// UI Elements
 		mLoginScreen = (TextView) findViewById(R.id.link_to_login);
-		
+
 		mFNameView = (EditText) findViewById(R.id.reg_firstname);
-		mFNameView.setFilters(new InputFilter[] { new InputFilter.LengthFilter(50) });
-		
+		mFNameView.setFilters(new InputFilter[]
+		{ new InputFilter.LengthFilter(50) });
+
 		mLNameView = (EditText) findViewById(R.id.reg_lastname);
-		mLNameView.setFilters(new InputFilter[] { new InputFilter.LengthFilter(50) });
-		
+		mLNameView.setFilters(new InputFilter[]
+		{ new InputFilter.LengthFilter(50) });
+
 		mEmailView = (EditText) findViewById(R.id.email_field);
-		mEmailView.setFilters(new InputFilter[] { new InputFilter.LengthFilter(50) });
-		
+		mEmailView.setFilters(new InputFilter[]
+		{ new InputFilter.LengthFilter(50) });
+
 		mPasswordView = (EditText) findViewById(R.id.password_field);
-		mPasswordView.setFilters(new InputFilter[] { new InputFilter.LengthFilter(50) });
-		
+		mPasswordView.setFilters(new InputFilter[]
+		{ new InputFilter.LengthFilter(50) });
+
 		mPasswordConfirm = (EditText) findViewById(R.id.password_confirm);
-		mPasswordConfirm.setFilters(new InputFilter[] { new InputFilter.LengthFilter(50) });
-		
+		mPasswordConfirm.setFilters(new InputFilter[]
+		{ new InputFilter.LengthFilter(50) });
+
 		mDOBView = (EditText) findViewById(R.id.dob_field);
 		mRadioMale = (RadioButton) findViewById(R.id.radio_male);
 		mRadioFemale = (RadioButton) findViewById(R.id.radio_female);
@@ -112,7 +111,7 @@ public class RegisterActivity extends FragmentActivity
 		mLoginScreen.setOnClickListener(new View.OnClickListener()
 		{
 
-			public void onClick( View arg0 )
+			public void onClick(View arg0)
 			{
 				// Closing registration screen
 				// Switching to Login Screen/closing register screen
@@ -121,30 +120,28 @@ public class RegisterActivity extends FragmentActivity
 		});
 
 		// Add a click listener to perform action when button is clicked
-		findViewById(R.id.btnRegister).setOnClickListener(
-				new View.OnClickListener()
+		findViewById(R.id.btnRegister).setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (mConnection.verifyConnection(getApplicationContext()) == true)
 				{
-					@Override
-					public void onClick( View view )
-					{
-						if (mConnection.verifyConnection(getApplicationContext()) == true)
-						{
-							// Attempt to register
-							attemptRegister();
-						}
-						else
-						{
-							Toast.makeText(getApplicationContext(),
-									"No Internet Connectivty", 1).show();
-						}
+					// Attempt to register
+					attemptRegister();
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "No Internet Connectivty", 1).show();
+				}
 
-					}
-				});
+			}
+		});
 
 	}
 
 	// Method to show the date picker
-	public void showDatePickerDialog( View v )
+	public void showDatePickerDialog(View v)
 	{
 		DatePickerFragment newFragment = new DatePickerFragment(this);
 		newFragment.show(getSupportFragmentManager(), "datePicker");
@@ -152,20 +149,18 @@ public class RegisterActivity extends FragmentActivity
 	}
 
 	/**
-	 * Attempts register the account specified by the register form. If there
-	 * are form errors (invalid email, missing fields, etc.), the errors are
-	 * presented and no actual register attempt is made.
+	 * Attempts register the account specified by the register form. If there are form errors
+	 * (invalid email, missing fields, etc.), the errors are presented and no actual register
+	 * attempt is made.
 	 */
 	public void attemptRegister()
 	{
 
 		// Patterns to detect invalid input or illegal characters
-		Pattern namePattern = Pattern.compile("[^a-z]",
-				Pattern.CASE_INSENSITIVE);
+		Pattern namePattern = Pattern.compile("[^a-z]", Pattern.CASE_INSENSITIVE);
 		Pattern passwordPattern = Pattern.compile("[^a-zA-Z0-9]");
-		Pattern emailPattern = Pattern
-				.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-						+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+		Pattern emailPattern = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+				+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 		Matcher m;
 
 		// Reset errors.
@@ -216,7 +211,6 @@ public class RegisterActivity extends FragmentActivity
 			cancel = true;
 		}
 
-		mPassword = encrypt(mPassword);
 		// Check for a valid email address.
 
 		m = emailPattern.matcher(mEmail);
@@ -275,11 +269,11 @@ public class RegisterActivity extends FragmentActivity
 			cancel = true;
 		}
 
-		if (mRadioMale.isSelected())
+		if (mRadioMale.isChecked())
 		{
 			mGender = "M";
 		}
-		else if (mRadioFemale.isSelected())
+		else if (mRadioFemale.isChecked())
 		{
 			mGender = "F";
 		}
@@ -300,19 +294,22 @@ public class RegisterActivity extends FragmentActivity
 
 			// Show a progress spinner, and kick off a background task to
 			// perform the user register attempt.
-			mRegisterStatusMessageView
-					.setText(R.string.login_progress_signing_in);
+			mRegisterStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 
 			// Attempt to insert using a callback
-			mUserTable.insert(user, new TableOperationCallback<User>()
+			mAzureService.addUser(user, new TableOperationCallback<User>()
 			{
-				public void onCompleted( User entity, Exception exception,
-						ServiceFilterResponse response )
+				public void onCompleted(User entity, Exception exception,
+						ServiceFilterResponse response)
 				{
 					showProgress(false);
 					if (exception == null)
 					{
+						((YouWishApplication) getApplication()).setUser(entity);
+
+						session.createLoginSession(mEmail);
+
 						// Finish the login activity
 						LoginActivity.login_activity.finish();
 
@@ -320,8 +317,7 @@ public class RegisterActivity extends FragmentActivity
 						finish();
 
 						// Start the Main Activity
-						Intent i = new Intent(getApplicationContext(),
-								MainActivity.class);
+						Intent i = new Intent(getApplicationContext(), MainActivity.class);
 						startActivity(i);
 					}
 					else
@@ -338,40 +334,34 @@ public class RegisterActivity extends FragmentActivity
 	 * Shows the progress UI and hides the login form.
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress( final boolean show )
+	private void showProgress(final boolean show)
 	{
 		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
 		// for very easy animations. If available, use these APIs to fade-in
 		// the progress spinner.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
 		{
-			int shortAnimTime = getResources().getInteger(
-					android.R.integer.config_shortAnimTime);
+			int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
 			mRegisterStatusView.setVisibility(View.VISIBLE);
-			mRegisterStatusView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
+			mRegisterStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
 					.setListener(new AnimatorListenerAdapter()
 					{
 						@Override
-						public void onAnimationEnd( Animator animation )
+						public void onAnimationEnd(Animator animation)
 						{
-							mRegisterStatusView
-									.setVisibility(show ? View.VISIBLE
-											: View.GONE);
+							mRegisterStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
 						}
 					});
 
 			mRegisterFormView.setVisibility(View.VISIBLE);
-			mRegisterFormView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
+			mRegisterFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
 					.setListener(new AnimatorListenerAdapter()
 					{
 						@Override
-						public void onAnimationEnd( Animator animation )
+						public void onAnimationEnd(Animator animation)
 						{
-							mRegisterFormView.setVisibility(show ? View.GONE
-									: View.VISIBLE);
+							mRegisterFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 						}
 					});
 		}
@@ -384,38 +374,13 @@ public class RegisterActivity extends FragmentActivity
 		}
 	}
 
-	private String encrypt( String password )
+	private void createAndShowDialog(Exception exception, String title)
 	{
-		MessageDigest md;
-		try
-		{
-			md = MessageDigest.getInstance("SHA-256");
-			md.update(password.getBytes());
-
-			byte byteData[] = md.digest();
-
-			// convert the byte to hex format method 1
-			StringBuffer sb = new StringBuffer();
-			for (int i = 0; i < byteData.length; i++)
-			{
-				sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16)
-						.substring(1));
-			}
-			password = sb.toString();
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return password;
-	}
-
-	private void createAndShowDialog(Exception exception, String title) {
 		createAndShowDialog(exception.getCause().getMessage(), title);
 	}
-	
-	private void createAndShowDialog(String message, String title) {
+
+	private void createAndShowDialog(String message, String title)
+	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		builder.setMessage(message);

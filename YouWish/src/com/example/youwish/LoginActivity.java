@@ -43,7 +43,9 @@ import android.widget.Toast;
  */
 public class LoginActivity extends FragmentActivity
 {
-//	private AzureService mAzureService;
+	private AzureService mAzureService;
+
+	// private AzureService mAzureService;
 	private ConnectionManager mConnection;
 
 	// Create Client
@@ -52,7 +54,6 @@ public class LoginActivity extends FragmentActivity
 	List<Pair<String, String>> queryParams = new ArrayList<Pair<String, String>>();
 
 	public static Activity login_activity;
-
 
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -70,9 +71,8 @@ public class LoginActivity extends FragmentActivity
 
 	// Session Manager Class
 	private SessionManager session;
-	
-	private ProgressDialog mProcess;
 
+	private ProgressDialog mProcess;
 
 	/*
 	 * Defines the operations to take place when the Activity is created. This will initalize UI
@@ -82,28 +82,16 @@ public class LoginActivity extends FragmentActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 
-		//mAzureService = new AzureService(this);
-		
-		 mProcess = new ProgressDialog(this);
-		
+		mAzureService = ((YouWishApplication) getApplication()).getService();
+		mAzureService.setClient(getApplicationContext());
+
+		mProcess = new ProgressDialog(this);
+
 		// Session class instance
 		session = SessionManager.getSessionManager(getApplicationContext());
-		
+
 		mConnection = ConnectionManager.getConnectionManager();
 
-		// Connect client to azure
-		try
-		{
-			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
-
-			// Get the Mobile Service Table instance to use
-			mUserTable = mClient.getTable(User.class);
-		} catch (MalformedURLException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		super.onCreate(savedInstanceState);
 
 		// Set the view from the login.xml layout
@@ -216,7 +204,7 @@ public class LoginActivity extends FragmentActivity
 						Toast.LENGTH_SHORT).show();
 			}
 		}
-	
+
 		return true;
 	}
 
@@ -352,17 +340,17 @@ public class LoginActivity extends FragmentActivity
 
 			// Attempt to query using the email input using a callback
 
-			//mAzureService.login(mEmail, 
-			mUserTable.where().field("email").eq(mEmail).execute(new TableQueryCallback<User>()
+			mAzureService.lookup(mEmail, new TableOperationCallback<User>()
 			{
-				public void onCompleted(List<User> result, int count, Exception exception,
+				@Override
+				public void onCompleted(User entity, Exception exception,
 						ServiceFilterResponse response)
 				{
 					showProgress(false);
 					if (exception == null)
 					{
 
-						if (result.isEmpty())
+						if (entity == null)
 						{
 							createAndShowDialog(
 									"The is no user currently registered with that email!",
@@ -371,36 +359,38 @@ public class LoginActivity extends FragmentActivity
 						}
 						else
 						{
-							for (User u : result)
+							// Compare retrieved password against
+							// password input
+							if (entity.getPassword().equals(mPassword))
 							{
-								// Compare retrieved password against
-								// password input
-								if (u.getPassword().equals(mPassword))
-								{
-									session.createLoginSession(mEmail);
-									// Finish this activity
-									finish();
+								((YouWishApplication) getApplication()).setUser(entity);
+								
+								session.createLoginSession(mEmail);
+								// Finish this activity
+								finish();
 
-									// Start the main activity
-									Intent i = new Intent(getApplicationContext(),
-											MainActivity.class);
-									startActivity(i);
-								}
-								else
-								{
-									mPasswordView
-											.setError(getString(R.string.error_incorrect_password));
-									mPasswordView.requestFocus();
-									mPasswordView.setText("");
-								}
+								// Start the main activity
+								Intent i = new Intent(getApplicationContext(), MainActivity.class);
+								startActivity(i);
+							}
+							else
+							{
+								mPasswordView
+										.setError(getString(R.string.error_incorrect_password));
+								mPasswordView.requestFocus();
+								mPasswordView.setText("");
 							}
 						}
 					}
 					else
 					{
 
-						createAndShowDialog(exception, "Error");
+						createAndShowDialog(
+								"The is no user currently registered with that email!",
+								"Invalid Email");
+						mPasswordView.setText("");
 					}
+
 				}
 			});
 		}
@@ -447,7 +437,7 @@ public class LoginActivity extends FragmentActivity
 			{
 				// Generate new password
 				recoveryUser.generateRecovery();
-				
+
 				// Send recovery email
 				// Update User to contain new hashed password
 				recoveryUser = RecoveryManager.sendMail(recoveryUser);
@@ -470,12 +460,10 @@ public class LoginActivity extends FragmentActivity
 
 	private void updateUser()
 	{
-		queryParams.add(new Pair<String, String>("update", "password"));
 		// Update the user in the database for the new password
-		mUserTable.update(recoveryUser, queryParams ,new TableOperationCallback<User>()
+		mAzureService.updatePassword(recoveryUser, new TableOperationCallback<User>()
 		{
-			public void onCompleted(User entity, Exception exception,
-					ServiceFilterResponse response)
+			public void onCompleted(User entity, Exception exception, ServiceFilterResponse response)
 			{
 				if (exception == null)
 				{
@@ -491,7 +479,7 @@ public class LoginActivity extends FragmentActivity
 		});
 
 	}
-	
+
 	/*
 	 * Shows the progress UI and hides the login form.
 	 */
@@ -563,15 +551,17 @@ public class LoginActivity extends FragmentActivity
 	private void recoverPassword(String email)
 	{
 		// Attempt to query using the email input using a callback
-		mUserTable.where().field("email").eq(email).execute(new TableQueryCallback<User>()
+		mAzureService.lookup(email, new TableOperationCallback<User>()
 		{
-			public void onCompleted(List<User> result, int count, Exception exception,
-					ServiceFilterResponse response)
+
+			@Override
+			public void onCompleted(User entity, Exception exception, ServiceFilterResponse response)
 			{
+
 				if (exception == null)
 				{
 
-					if (result.isEmpty())
+					if (entity == null)
 					{
 						mProcess.dismiss();
 						createAndShowDialog("The is no user currently registered with that email!",
@@ -580,22 +570,24 @@ public class LoginActivity extends FragmentActivity
 					}
 					else
 					{
-						for (User u : result)
-						{
-							mProcess.dismiss();
-							recoveryUser = u;
-							Thread t = new Thread(r);
-							t.start();
-						}
+
+						mProcess.dismiss();
+						recoveryUser = entity;
+						Thread t = new Thread(r);
+						t.start();
 					}
 				}
 				else
 				{
 
-					createAndShowDialog(exception, "Error");
+					createAndShowDialog(
+							"The is no user currently registered with that email!",
+							"Invalid Email");
+					mPasswordView.setText("");
 					mProcess.dismiss();
-					
+
 				}
+
 			}
 		});
 	}

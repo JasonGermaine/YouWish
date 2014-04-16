@@ -41,7 +41,7 @@ public class WishStreamFragment extends Fragment
 				WishStreamManager.class, null);
 		
 		mTabHost.addTab(mTabHost.newTabSpec("products")
-				.setIndicator("Products"), WishStreamManager.class, null);
+				.setIndicator("Product"), WishStreamManager.class, null);
 
 
 		mTabHost.addTab(mTabHost.newTabSpec("buckets").setIndicator("Bucket Lists"),

@@ -69,8 +69,8 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.example.youwish.BaseActivity"
-            android:label="@string/title_activity_base" >
+            android:name="com.example.youwish.SettingActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 

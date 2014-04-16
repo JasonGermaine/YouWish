@@ -77,6 +77,8 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	static final int REQUEST_IMAGE_CAPTURE = 1;
 	static final int REQUEST_IMAGE_GALLERY = 2;
 
+	
+	
 	// Directory path in which to store images
 	private final String dir = Environment
 			.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/YouWish/";
@@ -118,8 +120,11 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	private MobileServiceTable<User> mUserTable;
 	List<Pair<String, String>> queryParams = new ArrayList<Pair<String, String>>();
 
+	private AzureService mAzureService;
+	
 	private ConnectionManager mConnection;
 
+	private User user;
 	private Product p;
 	private BucketList b;
 	private ProgressDialog mProcess;
@@ -130,6 +135,11 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	protected void onCreate(Bundle savedInstanceState)
 	{
 
+		user = ((YouWishApplication) getApplication()).getUser();
+		
+		mAzureService = ((YouWishApplication) getApplication()).getService();
+		mAzureService.setClient(getApplicationContext());
+		
 		// Session class instance
 		session = SessionManager.getSessionManager(getApplicationContext());
 		
@@ -140,21 +150,6 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 		// Set the current layout
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_wish);
-
-		// Connect client to azure
-		try
-		{
-			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", this);
-			mProductTable = mClient.getTable(Product.class);
-			mBucketListTable = mClient.getTable(BucketList.class);
-			mUserTable = mClient.getTable(User.class);
-		} catch (MalformedURLException e)
-		{
-			// TODO Auto-generated catch block
-			Toast.makeText(getApplicationContext(), "Client Problem", Toast.LENGTH_SHORT).show();
-
-		}
 
 		mPickImage = false;
 
@@ -686,7 +681,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 	 */
 	public void validate()
 	{
-		String userId = session.getUserDetails();
+		String userId = user.getEmail();
 		Date timeStamp = new Date();
 		mProcess.setMessage("Adding Wish");
 		mProcess.show();
@@ -877,7 +872,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 		p.setUserId(session.getUserDetails());
 		p.setTimeStamp();
 		// Attempt to insert using a callback
-		mProductTable.insert(p, new TableOperationCallback<Product>()
+		mAzureService.addProduct(p, new TableOperationCallback<Product>()
 		{
 			public void onCompleted(Product entity, Exception exception,
 					ServiceFilterResponse response)
@@ -909,7 +904,7 @@ public class AddWishActivity extends FragmentActivity implements LocationListene
 
 		b.setUserId(session.getUserDetails());
 		// Attempt to insert using a callback
-		mBucketListTable.insert(b, new TableOperationCallback<BucketList>()
+		mAzureService.addBucketList(b, new TableOperationCallback<BucketList>()
 		{
 			public void onCompleted(BucketList entity, Exception exception,
 					ServiceFilterResponse response)

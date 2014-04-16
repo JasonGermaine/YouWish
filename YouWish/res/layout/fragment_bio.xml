@@ -11,7 +11,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="@string/profile_name"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="gone" />
 
@@ -55,7 +54,6 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="@string/bio"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
