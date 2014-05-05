@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15.0sp"
+        android:layout_marginTop="15.0sp"
+        android:gravity="center_horizontal" >
+
+        <ImageButton
+            android:id="@+id/image_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15.0sp"
+            android:src="@drawable/ic_gallery" />
+
+        <TextView
+            android:id="@+id/gallery_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/image_gallery"
+            android:layout_marginRight="50.0sp"
+            android:paddingLeft="15.0sp"
+            android:text="@string/gallery"
+            android:textColor="#ff000000" />
+
+        <ImageButton
+            android:id="@+id/image_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_gallery"
+            android:src="@drawable/ic_camera" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/image_camera"
+            android:layout_toRightOf="@id/gallery_text"
+            android:text="@string/camera"
+            android:textColor="#ff000000" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="120dp"
+        android:text="@string/close_button" />
+
+</LinearLayout>

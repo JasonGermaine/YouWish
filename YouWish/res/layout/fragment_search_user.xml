@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:layout_margin="5dp"
-        android:background="@drawable/round_edittext"
         android:drawableLeft="@android:drawable/ic_menu_search"
         android:hint="@string/search"
         android:imeOptions="actionDone"
@@ -24,17 +23,16 @@
         android:layout_margin="5dp"
         android:padding="5dp"
         android:layout_weight="1"
-        android:background="@drawable/round_edittext"
         android:orientation="vertical" >
 
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="#999999"
-            android:dividerHeight="5dp"
+            android:divider="#0000FF"
+            android:dividerHeight="2dp"
             android:padding="6dip"
-            tools:listitem="@layout/list_user" />
+            tools:listitem="@layout/row_user" />
     </LinearLayout>
 
 </LinearLayout>

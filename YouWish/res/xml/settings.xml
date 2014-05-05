@@ -7,11 +7,6 @@
             android:key="password_preference"
             android:summary="@string/summary_password_preference"
             android:title="@string/title_password_preference" />
-        <EditTextPreference
-            android:dialogTitle="@string/email_preference"
-            android:key="email_preference"
-            android:summary="@string/summary_email_preference"
-            android:title="@string/title_email_preference" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/support" >
         <Preference
@@ -21,6 +16,10 @@
                 android:action="android.intent.action.VIEW"
                 android:data="mailto:recovery.youwish@gmail.com" />
         </Preference>
+        <Preference
+            android:key="twitter_contact"
+            android:title="@string/twitter"
+            android:summary="@string/twitter_desc" />
     </PreferenceCategory>
 
 </PreferenceScreen>

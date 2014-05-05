@@ -39,8 +39,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:ems="10"
+        android:hint="@string/profile_bio"
         android:inputType="textMultiLine"
-        android:text="@string/profile_bio"
         android:visibility="gone" >
 
         <requestFocus />
@@ -54,17 +54,19 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
-        android:id="@+id/Button01"
+        android:id="@+id/image_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:minHeight="30dp"
-        android:minWidth="40dp"
+        android:scaleType="fitXY"
+        android:layout_marginTop="40sp"
+        android:background="@android:color/transparent"
+        android:drawableTop="@drawable/ic_edit_profile"
         android:text="@string/edit_button"
-        android:textSize="12sp" />
+        android:textColor="#000" >
+    </Button>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -78,8 +80,8 @@
             android:layout_marginRight="5dp"
             android:layout_marginTop="20dp"
             android:minHeight="30dp"
-     	    android:minWidth="90dp"
-            android:text="@string/save_button" 
+            android:minWidth="90dp"
+            android:text="@string/save_button"
             android:textSize="12sp"
             android:visibility="gone" />
 
@@ -90,11 +92,10 @@
             android:layout_marginLeft="5dp"
             android:layout_marginTop="20dp"
             android:minHeight="30dp"
-       	    android:minWidth="90dp"
-            android:text="@string/cancel_button" 
+            android:minWidth="90dp"
+            android:text="@string/cancel_button"
             android:textSize="12sp"
             android:visibility="gone" />
-
     </LinearLayout>
 
 </LinearLayout>
