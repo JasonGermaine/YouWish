@@ -260,9 +260,9 @@ public class BioFragment extends Fragment
 
 						if (!cancel)
 						{
-							if (!user.getBio().equals(mBioUpdate)
-									&& !user.getFName().equals(mFName)
-									&& !user.getLName().equals(mLName))
+							if (user.getBio() == null || !user.getBio().equals(mBioUpdate)
+									|| !user.getFName().equals(mFName)
+									|| !user.getLName().equals(mLName))
 							{
 								user.setBio(mBioUpdate);
 								user.setFName(mFName);

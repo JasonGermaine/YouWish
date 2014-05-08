@@ -75,7 +75,7 @@ public class AzureService
 	 */
 	public void updateBio(User u, TableOperationCallback<User> callback)
 	{
-		queryParams.add(new Pair<String, String>("update", "bio"));
+		//queryParams.add(new Pair<String, String>("update", "bio"));
 
 		mUserTable.update(u, queryParams, callback);
 	}
@@ -112,11 +112,11 @@ public class AzureService
 	{
 		if (count == 0)
 		{
-			mProductTable.top(5).orderBy("time_stamp", QueryOrder.Descending).execute(callback);
+			mProductTable.top(2).orderBy("time_stamp", QueryOrder.Descending).execute(callback);
 		}
 		else
 		{
-			mProductTable.top(5).skip(count).orderBy("time_stamp", QueryOrder.Descending)
+			mProductTable.top(2).skip(count).orderBy("time_stamp", QueryOrder.Descending)
 					.execute(callback);
 		}
 	}
@@ -129,11 +129,11 @@ public class AzureService
 	{
 		if (count == 0)
 		{
-			mBucketListTable.top(5).orderBy("time_stamp", QueryOrder.Descending).execute(callback);
+			mBucketListTable.top(2).orderBy("time_stamp", QueryOrder.Descending).execute(callback);
 		}
 		else
 		{
-			mBucketListTable.top(5).skip(count).orderBy("time_stamp", QueryOrder.Descending)
+			mBucketListTable.top(2).skip(count).orderBy("time_stamp", QueryOrder.Descending)
 					.execute(callback);
 		}
 	}

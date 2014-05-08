@@ -247,7 +247,7 @@ public class NewWishAdapter extends ArrayAdapter<ListWish>
 			if (lw.getBucketList().getAchieveBy() != null)
 			{
 				date.setVisibility(View.VISIBLE);
-				date.setText(lw.getBucketList().getAchieveBy());
+				date.setText("To achieve by: " + lw.getBucketList().getAchieveBy());
 			}
 		}
 		else
@@ -430,7 +430,7 @@ public class NewWishAdapter extends ArrayAdapter<ListWish>
 										}
 										else
 										{
-											createAndShowDialog(exception, "Error");
+											createAndShowDialog("Wish is already deleted", "Error");
 										}
 									}
 								});
