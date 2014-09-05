@@ -57,7 +57,7 @@ public class RecoveryManager
 		// Specify email login details
 		String emailHost = "smtp.gmail.com";
 		String fromUser = "recovery.youwish";// just the id alone without @gmail.com
-		String fromUserEmailPassword = "X00090307";
+		String fromUserEmailPassword = "**********";
 
 		// Using smpt protocol and send the email
 		Transport transport = mailSession.getTransport("smtp");
