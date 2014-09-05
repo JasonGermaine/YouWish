@@ -40,7 +40,7 @@ public class AzureService
 		try
 		{
 			mClient = new MobileServiceClient("https://youwish.azure-mobile.net/",
-					"DLOtCZsychhFqEupVpZqWBQtcgFPnJ95", context);
+					"**********************", context);
 			mUserTable = mClient.getTable(User.class);
 			mProductTable = mClient.getTable(Product.class);
 			mBucketListTable = mClient.getTable(BucketList.class);
